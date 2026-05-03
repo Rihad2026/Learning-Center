@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Center — Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f0f2f5;--sw:240px;--hh:60px;
+  --white:#fff;--border:#e2e8f0;--text:#1a202c;--muted:#718096;
+  --primary:#111827;--accent:#2563eb;--success:#16a34a;--danger:#dc2626;--warning:#d97706;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --shl:0 4px 16px rgba(0,0,0,.12);--r:10px;
+  --fn:'Hind Siliguri',sans-serif;--fe:'Inter',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:var(--fn);color:var(--text)}
+
+/* ═══ LOGIN ═══ */
+#loginScreen{position:fixed;inset:0;background:linear-gradient(135deg,#0a0a0a 0%,#111827 60%,#0f172a 100%);display:flex;align-items:center;justify-content:center;z-index:9999}
+.lbox{background:rgba(255,255,255,.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.09);border-radius:24px;padding:44px 48px;width:420px;text-align:center;box-shadow:0 30px 60px rgba(0,0,0,.6)}
+.llogo{width:76px;height:76px;background:#fff;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#000;font-family:var(--fe);box-shadow:0 4px 20px rgba(255,255,255,.15)}
+.lbox h1{color:#fff;font-size:1.6em;font-weight:700;margin-bottom:6px}
+.lbox>p{color:rgba(255,255,255,.45);font-size:.85em;margin-bottom:30px}
+.l-tabs{display:flex;background:rgba(255,255,255,.06);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px}
+.l-tab{flex:1;padding:10px;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;font-family:var(--fn);color:rgba(255,255,255,.5);background:none}
+.l-tab.on{background:rgba(255,255,255,.12);color:#fff}
+.l-panel{display:none}.l-panel.on{display:block}
+.l-inp{width:100%;padding:12px 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#fff;font-size:13.5px;outline:none;font-family:var(--fn);margin-bottom:10px;transition:.2s}
+.l-inp:focus{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.1)}
+.l-inp::placeholder{color:rgba(255,255,255,.3)}
+.l-btn{width:100%;padding:13px;background:#fff;border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:.2s;font-family:var(--fn);margin-top:4px}
+.l-btn:hover{background:#f0f0f0;transform:translateY(-1px)}
+.l-btn:active{transform:none}
+.l-err{color:#f87171;font-size:12px;margin-bottom:8px;display:none;text-align:left;padding:0 2px}
+.l-sep{display:flex;align-items:center;gap:10px;margin:18px 0}
+.l-sep span{color:rgba(255,255,255,.2);font-size:12px}
+.l-sep::before,.l-sep::after{content:'';flex:1;border-top:1px solid rgba(255,255,255,.1)}
+.l-skip{width:100%;padding:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;transition:.2s;font-family:var(--fn)}
+.l-skip:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)}
+.l-owner{background:rgba(255,255,255,.05);border-radius:10px;padding:12px 14px;margin-top:20px;border:1px solid rgba(255,255,255,.07)}
+.l-owner strong{color:#fff;display:block;font-size:.9em;margin-bottom:2px}
+.l-owner span{color:rgba(255,255,255,.4);font-size:.77em}
+.l-note{color:rgba(255,255,255,.25);font-size:11px;margin-top:14px;line-height:1.6}
+
+/* ═══ APP ═══ */
+#appShell{display:none;height:100vh;flex-direction:column}
+#appShell.on{display:flex}
+
+/* ── TOPBAR ── */
+.topbar{height:var(--hh);background:var(--white);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.06);z-index:200;position:relative}
+.brand{display:flex;align-items:center;gap:10px;width:var(--sw);flex-shrink:0}
+.brand-ic{width:36px;height:36px;background:#000;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;font-family:var(--fe);flex-shrink:0}
+.brand h1{font-size:.94em;font-weight:700;line-height:1.2}
+.brand small{font-size:10.5px;color:var(--muted)}
+.tb-search{flex:1;max-width:400px;position:relative}
+.tb-search input{width:100%;padding:9px 14px 9px 36px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:#f8fafc;outline:none;font-family:var(--fn);transition:.2s}
+.tb-search input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.tb-search .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:15px;pointer-events:none}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.sync-chip{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);padding:5px 11px;background:#f8fafc;border-radius:20px;border:1px solid var(--border)}
+.sdot{width:7px;height:7px;border-radius:50%;background:#d1d5db;flex-shrink:0}
+.sdot.ok{background:var(--success)}.sdot.busy{background:var(--warning);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.tbtn{padding:8px 14px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;border:none;font-family:var(--fn);transition:.18s;display:flex;align-items:center;gap:5px}
+.tbtn-b{background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe}.tbtn-b:hover{background:#dbeafe}
+.tbtn-g{background:#f0fdf4;color:var(--success);border:1px solid #bbf7d0}.tbtn-g:hover{background:#dcfce7}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;cursor:pointer;border:2px solid var(--border);overflow:hidden;flex-shrink:0;background:#111827;color:#fff;user-select:none}
+.av img{width:100%;height:100%;object-fit:cover}
+.udrop{position:absolute;top:56px;right:16px;background:#fff;border:1px solid var(--border);border-radius:14px;min-width:230px;padding:8px;box-shadow:0 10px 30px rgba(0,0,0,.14);display:none;z-index:300}
+.udrop.on{display:block}
+.udh{padding:10px 12px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.udh strong{display:block;font-size:13px}.udh span{font-size:11.5px;color:var(--muted)}
+.udi{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;transition:.15s;font-family:var(--fn)}
+.udi:hover{background:#f1f5f9}
+.udi.red{color:var(--danger)}.udi.red:hover{background:#fef2f2}
+
+/* ── LAYOUT ── */
+.mlayout{flex:1;display:flex;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sw);background:#0d0d0d;flex-shrink:0;display:flex;flex-direction:column;padding:14px 10px;overflow-y:auto;border-right:1px solid #1a1a1a}
+.sidebar::-webkit-scrollbar{width:0}
+.stitle{color:#333;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;padding:8px 12px 4px;font-family:var(--fe)}
+.nb{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;color:#666;font-size:13.5px;font-weight:500;transition:.18s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:var(--fn)}
+.nb:hover{background:#1a1a1a;color:#bbb}
+.nb.on{background:#1e1e1e;color:#fff}
+.nb.on .ni{color:#60a5fa}
+.ni{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.nbadge{margin-left:auto;background:#dc2626;color:#fff;font-size:10px;padding:2px 7px;border-radius:10px;font-family:var(--fe)}
+.sdiv{border:none;border-top:1px solid #1e1e1e;margin:10px 0}
+
+/* ── PAGES ── */
+.parea{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.pg{flex:1;overflow-y:auto;padding:26px 28px;display:none}
+.pg.on{display:block}
+.ptop{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
+.ptop h2{font-size:1.28em;font-weight:700}
+.ptop p{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* ── STATS ── */
+.s4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}
+.sc{background:var(--white);border-radius:var(--r);padding:20px;box-shadow:var(--sh);border:1px solid var(--border);display:flex;align-items:center;gap:16px;transition:.2s;cursor:default}
+.sc:hover{box-shadow:var(--shl);transform:translateY(-1px)}
+.sic{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ib{background:#eff6ff}.ig{background:#f0fdf4}.io{background:#fff7ed}.ir{background:#fef2f2}
+.slbl{font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.sval{font-size:1.75em;font-weight:700;line-height:1;font-family:var(--fe)}
+.ssub{font-size:11px;color:var(--muted);margin-top:3px}
+
+/* ── CARD ── */
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);border:1px solid var(--border);margin-bottom:18px}
+.ch{padding:15px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.ch h3{font-size:14px;font-weight:700}
+
+/* ── TABLE ── */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{background:#f8fafc;padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:.12s}
+tbody tr:hover{background:#fafbff}
+tbody tr:last-child{border-bottom:none}
+td{padding:12px 14px;vertical-align:middle}
+td small{color:var(--muted);font-size:11.5px;display:block;margin-top:1px}
+.tda{display:flex;gap:6px;white-space:nowrap}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600}
+.bs{background:#dcfce7;color:#16a34a}.bw{background:#fef9c3;color:#b45309}
+.bd{background:#fee2e2;color:#dc2626}.bi{background:#e0f2fe;color:#0369a1}.bg{background:#f1f5f9;color:#475569}
+
+/* ── BUTTONS ── */
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.18s;display:inline-flex;align-items:center;gap:6px;font-family:var(--fn);white-space:nowrap}
+.bp{background:var(--primary);color:#fff}.bp:hover{background:#374151}
+.bsu{background:var(--success);color:#fff}.bsu:hover{background:#15803d}
+.bd2{background:var(--danger);color:#fff}.bd2:hover{background:#b91c1c}
+.be{background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe}.be:hover{background:#dbeafe}
+.bdel{background:#fef2f2;color:var(--danger);border:1px solid #fecaca}.bdel:hover{background:#fee2e2}
+.bpay{background:#f0fdf4;color:var(--success);border:1px solid #bbf7d0}.bpay:hover{background:#dcfce7}
+.bo{background:#fff;color:var(--text);border:1.5px solid var(--border)}.bo:hover{background:#f8fafc}
+.bsm{padding:6px 12px;font-size:12px}
+.blg{padding:12px 24px;font-size:14px}
+.bfw{width:100%;justify-content:center;margin-top:8px}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;gap:10px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
+.ts{flex:1;min-width:220px;position:relative}
+.ts input{width:100%;padding:9px 14px 9px 36px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none;font-family:var(--fn);transition:.2s}
+.ts input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.ts .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#94a3b8;pointer-events:none}
+.sel{padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--fn);outline:none;background:#fff;cursor:pointer}
+.sel:focus{border-color:var(--accent)}
+
+/* ── MODAL ── */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.ov.on{display:flex}
+.mb{background:#fff;border-radius:16px;width:560px;max-width:96vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.22);border:1px solid var(--border)}
+.mh{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2}
+.mh h3{font-size:15px;font-weight:700}
+.mcl{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted);transition:.15s}
+.mcl:hover{background:#f1f5f9;color:var(--text)}
+.mbdy{padding:20px 24px}
+.mft{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.fg{margin-bottom:14px}
+.fg label{display:block;margin-bottom:5px;font-weight:600;font-size:12.5px;color:#374151}
+.fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13.5px;outline:none;font-family:var(--fn);transition:.2s;color:var(--text);background:#fff}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.08)}
+.fg input[readonly]{background:#f8fafc;color:var(--muted)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ibox{border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:13px;background:#f0fdf4;border:1px solid #bbf7d0;display:none}
+
+/* ── PROGRESS ── */
+.pb{background:#f1f5f9;border-radius:4px;height:6px;overflow:hidden}
+.pf{height:100%;border-radius:4px;background:var(--accent);transition:width .4s}
+.pf.g{background:var(--success)}.pf.r{background:var(--danger)}
+
+/* ── CALCULATOR ── */
+.co{display:flex;gap:24px;align-items:flex-start;justify-content:center;padding:10px 0;flex-wrap:wrap}
+.cw{background:#1c1c1e;border-radius:24px;padding:20px;width:340px;box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.cd{background:#000;border-radius:14px;padding:18px 16px 12px;margin-bottom:16px;min-height:96px;display:flex;flex-direction:column;justify-content:flex-end}
+.ce{color:#555;font-size:13px;text-align:right;min-height:18px;word-break:break-all;font-family:var(--fe)}
+.cn{color:#fff;font-size:2.8em;font-weight:300;text-align:right;word-break:break-all;line-height:1.1;font-family:var(--fe)}
+.cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cb{height:68px;border:none;border-radius:14px;font-size:1.2em;font-weight:600;cursor:pointer;transition:.1s;font-family:var(--fe);display:flex;align-items:center;justify-content:center;user-select:none}
+.cb:active{transform:scale(.9)}
+.cn2{background:#2c2c2e;color:#fff}.cn2:hover{background:#3a3a3c}
+.cop{background:#3a3a3c;color:#ff9f0a}.cop:hover{background:#48484a}
+.cfn{background:#2c2c2e;color:#fff}.cfn:hover{background:#3a3a3c}
+.ceq{background:#ff9f0a;color:#000}.ceq:hover{background:#ffb340}
+.cwide{grid-column:span 2}
+.chp{background:#fff;border-radius:14px;padding:18px;width:300px;border:1px solid var(--border);box-shadow:var(--sh)}
+.chp h4{font-size:13px;font-weight:700;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.chi{padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:13px;color:var(--muted);font-family:var(--fe)}
+.chi:last-child{border-bottom:none}
+.chi-r{font-weight:700;color:var(--text)}
+
+/* ── SETTINGS ── */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ss{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:20px}
+.ss h4{font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f8fafc}
+.sr:last-child{border-bottom:none}
+.sl{font-size:13px}.sl small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+.tog{position:relative;width:44px;height:24px;cursor:pointer}
+.tog input{opacity:0;width:0;height:0}
+.togs{position:absolute;inset:0;background:#cbd5e1;border-radius:12px;transition:.3s}
+.togs:before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.tog input:checked+.togs{background:var(--accent)}
+.tog input:checked+.togs:before{transform:translateX(20px)}
+
+/* ── DASHBOARD PANELS ── */
+.d2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ── TOAST ── */
+.tw2{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#1e293b;color:#fff;padding:12px 18px;border-radius:10px;font-size:13.5px;min-width:260px;max-width:360px;box-shadow:0 8px 24px rgba(0,0,0,.2);border-left:4px solid var(--accent);animation:tin .3s ease;display:flex;align-items:center;gap:10px;pointer-events:auto}
+.toast.success{border-color:var(--success)}.toast.error{border-color:var(--danger)}.toast.warning{border-color:var(--warning)}
+@keyframes tin{from{transform:translateX(120%);opacity:0}to{transform:none;opacity:1}}
+@keyframes tout{from{transform:none;opacity:1}to{transform:translateX(120%);opacity:0}}
+
+/* ── EMPTY ── */
+.empty{text-align:center;padding:52px 20px}
+.empty .ei{font-size:44px;margin-bottom:10px}
+.empty p{color:var(--muted);font-size:14px}
+
+/* ── AVATAR CAM ICON ── */
+.av{position:relative}
+.av-cam{position:absolute;bottom:-2px;right:-2px;width:16px;height:16px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:9px;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);opacity:0;transition:opacity .2s;z-index:10}
+.av:hover .av-cam{opacity:1}
+
+/* ── TUTORIAL ── */
+.tut-chip{display:inline-flex;align-items:center;padding:7px 14px;background:#fff;border:1.5px solid var(--border);border-radius:20px;font-size:12.5px;color:var(--text);text-decoration:none;transition:.18s;font-family:var(--fn);font-weight:600}
+.tut-chip:hover{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateY(-1px)}
+.tut-section{background:var(--white);border-radius:14px;border:1px solid var(--border);margin-bottom:18px;overflow:hidden;box-shadow:var(--sh)}
+.tut-header{display:flex;align-items:center;gap:14px;padding:18px 22px;background:linear-gradient(to right,#f8fafc,#fff);border-bottom:1px solid var(--border)}
+.tut-num{width:32px;height:32px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0;font-family:var(--fe)}
+.tut-header h3{font-size:15px;font-weight:700;color:var(--text)}
+.tut-body{padding:20px 22px}
+.tut-cols{display:grid;grid-template-columns:1fr 320px;gap:22px;align-items:start}
+.tut-text{display:flex;flex-direction:column;gap:12px}
+.tut-step{display:flex;gap:12px;align-items:flex-start}
+.step-dot{width:24px;height:24px;background:var(--accent);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px;font-family:var(--fe)}
+.tut-step>div{font-size:13.5px;line-height:1.65;color:var(--text)}
+.tut-step strong{color:var(--primary)}
+.tut-tip{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 13px;font-size:12.5px;color:#92400e;line-height:1.6}
+.tut-screen{background:#f1f5f9;border-radius:12px;padding:14px;border:1px solid var(--border);min-height:140px;position:relative;overflow:hidden}
+.tut-screen::before{content:'● ● ●';position:absolute;top:8px;left:12px;font-size:8px;color:#94a3b8;letter-spacing:3px}
+.tut-screen>*{margin-top:8px}
+@media(max-width:1100px){.tut-cols{grid-template-columns:1fr}}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#f1f5f9}
+::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#94a3b8}
+
+/* ── BACKUP MODAL ── */
+.bk-step{background:#f8fafc;border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid var(--border)}
+.bk-step h5{font-size:13px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.bk-step p{font-size:12.5px;color:var(--muted);line-height:1.6}
+.bk-step code{background:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:11.5px;font-family:var(--fe)}
+
+@media(max-width:1200px){.s4{grid-template-columns:1fr 1fr}.sg{grid-template-columns:1fr}.d2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="loginScreen">
+  <div class="lbox">
+    <div class="llogo">LC</div>
+    <h1>🎓 Learning Center</h1>
+    <p>সম্পূর্ণ ব্যবস্থাপনা সিস্টেম</p>
+
+    <div class="l-tabs">
+      <button class="l-tab on" onclick="switchTab('login')">🔑 লগইন</button>
+      <button class="l-tab" onclick="switchTab('register')">📝 নতুন অ্যাকাউন্ট</button>
+    </div>
+
+    <!-- LOGIN PANEL -->
+    <div class="l-panel on" id="lp-login">
+      <div class="l-err" id="loginErr">❌ ব্যবহারকারীর নাম বা পাসওয়ার্ড ভুল</div>
+      <input class="l-inp" type="text" id="loginUser" placeholder="👤 ব্যবহারকারীর নাম" autocomplete="username">
+      <input class="l-inp" type="password" id="loginPass" placeholder="🔒 পাসওয়ার্ড" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <button class="l-btn" onclick="doLogin()">প্রবেশ করুন →</button>
+      <div class="l-sep"><span>অথবা</span></div>
+      <button class="l-skip" onclick="guestLogin()">👁️ গেস্ট হিসেবে প্রবেশ করুন</button>
+    </div>
+
+    <!-- REGISTER PANEL -->
+    <div class="l-panel" id="lp-register">
+      <div class="l-err" id="regErr"></div>
+      <input class="l-inp" type="text" id="regName" placeholder="👤 পুরো নাম">
+      <input class="l-inp" type="text" id="regUser" placeholder="🆔 ব্যবহারকারীর নাম (ইংরেজিতে)">
+      <input class="l-inp" type="password" id="regPass" placeholder="🔒 পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)">
+      <input class="l-inp" type="password" id="regPass2" placeholder="🔒 পাসওয়ার্ড নিশ্চিত করুন" onkeydown="if(event.key==='Enter')doRegister()">
+      <button class="l-btn" onclick="doRegister()">অ্যাকাউন্ট তৈরি করুন →</button>
+    </div>
+
+    <p class="l-note">ডেটা শুধুমাত্র এই কম্পিউটারে সংরক্ষিত থাকবে।<br>TXT ফাইল এক্সপোর্ট দিয়ে ব্যাকআপ করুন।</p>
+    <div class="l-owner"><strong>MD RAFIQUL ISLAM SK</strong><span>প্রতিষ্ঠাতা ও পরিচালক, Learning Center</span></div>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="appShell">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-ic">LC</div>
+      <div><h1 id="topInstName">Learning Center</h1><small>Management System</small></div>
+    </div>
+    <div class="tb-search">
+      <span class="si">🔍</span>
+      <input type="text" id="gSearch" placeholder="শিক্ষার্থী, কোর্স বা পেমেন্ট খুঁজুন..." oninput="gSrch()">
+    </div>
+    <div class="tb-right">
+      <div class="sync-chip"><div class="sdot ok" id="sdot"></div><span id="stxt">ডেটা সংরক্ষিত</span></div>
+      <div style="position:relative">
+        <div class="av" id="avBtn" onclick="toggleUD()" title="মেনু খুলুন">?
+          <div class="av-cam" onclick="event.stopPropagation();openAvatarMenu()" title="ছবি পরিবর্তন করুন">📷</div>
+        </div>
+        <div class="udrop" id="udrop">
+          <div class="udh"><strong id="udName">—</strong><span id="udRole">—</span></div>
+          <div class="udi" onclick="nav('settings');toggleUD()">⚙️ সেটিংস</div>
+          <div class="udi" onclick="openAvatarMenu()">🖼️ প্রোফাইল ছবি</div>
+          <div class="udi" onclick="exportData()">📤 ডেটা এক্সপোর্ট (TXT)</div>
+          <div class="udi" onclick="document.getElementById('impFile').click()">📥 ডেটা ইমপোর্ট (TXT)</div>
+          <div class="udi" onclick="openBackupModal()">☁️ Drive ব্যাকআপ গাইড</div>
+          <hr style="margin:6px 0;border:none;border-top:1px solid #f1f5f9">
+          <div class="udi red" onclick="doLogout()">🚪 লগআউট</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="impFile" accept=".txt" style="display:none" onchange="importFile(this)">
+
+  <!-- MAIN LAYOUT -->
+  <div class="mlayout">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+      <div class="stitle">প্রধান মেনু</div>
+      <button class="nb on" id="nb-dash"  onclick="nav('dash')"><span class="ni">📊</span>ড্যাশবোর্ড</button>
+      <button class="nb"    id="nb-stu"   onclick="nav('stu')"><span class="ni">👨‍🎓</span>শিক্ষার্থী<span class="nbadge" id="nbs" style="display:none">0</span></button>
+      <button class="nb"    id="nb-crs"   onclick="nav('crs')"><span class="ni">📚</span>কোর্স</button>
+      <button class="nb"    id="nb-pay"   onclick="nav('pay')"><span class="ni">💰</span>পেমেন্ট</button>
+      <button class="nb"    id="nb-due"   onclick="nav('due')"><span class="ni">⚠️</span>বকেয়া<span class="nbadge" id="nbd" style="display:none">0</span></button>
+      <button class="nb"    id="nb-cert"  onclick="nav('cert')"><span class="ni">🎓</span>সার্টিফিকেট</button>
+      <hr class="sdiv">
+      <div class="stitle">টুলস</div>
+      <button class="nb" id="nb-calc"    onclick="nav('calc')"><span class="ni">🔢</span>ক্যালকুলেটর</button>
+      <button class="nb" id="nb-settings" onclick="nav('settings')"><span class="ni">⚙️</span>সেটিংস</button>
+      <button class="nb" id="nb-tutorial" onclick="nav('tutorial')"><span class="ni">📖</span>ব্যবহার গাইড</button>
+    </nav>
+
+    <!-- PAGES -->
+    <div class="parea">
+
+      <!-- DASHBOARD -->
+      <div class="pg on" id="pg-dash">
+        <div class="ptop">
+          <div><h2>📊 ড্যাশবোর্ড</h2><p>সার্বিক পরিসংখ্যান ও সাম্প্রতিক কার্যক্রম</p></div>
+          <span id="todayStr" style="font-size:13px;color:var(--muted);align-self:center"></span>
+        </div>
+        <div class="s4">
+          <div class="sc"><div class="sic ib">👨‍🎓</div><div><div class="slbl">মোট শিক্ষার্থী</div><div class="sval" id="d1">0</div><div class="ssub">নথিভুক্ত</div></div></div>
+          <div class="sc"><div class="sic ig">📚</div><div><div class="slbl">চলমান কোর্স</div><div class="sval" id="d2">0</div><div class="ssub">সক্রিয়</div></div></div>
+          <div class="sc"><div class="sic io">💰</div><div><div class="slbl">মোট আয়</div><div class="sval" id="d3">৳০</div><div class="ssub">সর্বমোট পেমেন্ট</div></div></div>
+          <div class="sc"><div class="sic ir">⚠️</div><div><div class="slbl">মোট বকেয়া</div><div class="sval" id="d4">৳০</div><div class="ssub" id="d4s">০ জন</div></div></div>
+        </div>
+        <div class="d2">
+          <div class="card"><div class="ch"><h3>📋 সাম্প্রতিক ভর্তি</h3></div><div style="padding:0 20px" id="dRS"></div></div>
+          <div class="card"><div class="ch"><h3>💵 সাম্প্রতিক পেমেন্ট</h3></div><div style="padding:0 20px" id="dRP"></div></div>
+        </div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="pg" id="pg-stu">
+        <div class="ptop">
+          <div><h2>👨‍🎓 শিক্ষার্থী</h2><p>শিক্ষার্থী যোগ, সম্পাদনা ও তথ্য পরিচালনা</p></div>
+          <button class="btn blg bp" onclick="openStu()">➕ নতুন শিক্ষার্থী</button>
+        </div>
+        <div class="toolbar">
+          <div class="ts"><span class="si">🔍</span><input type="text" id="srchStu" placeholder="নাম, মোবাইল, পিতা, কোর্স..." oninput="renStu()"></div>
+          <select class="sel" id="flStuSt" onchange="renStu()"><option value="">সকল স্ট্যাটাস</option><option>বকেয়া</option><option>সম্পূর্ণ</option></select>
+          <select class="sel" id="flStuCr" onchange="renStu()"><option value="">সকল কোর্স</option></select>
+        </div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>নাম</th><th>মোবাইল</th><th>পিতার নাম</th><th>কোর্স</th><th>মোট ফি</th><th>জমা</th><th>বকেয়া</th><th>অগ্রগতি</th><th>ভর্তি</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+          <tbody id="stuBody"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- COURSES -->
+      <div class="pg" id="pg-crs">
+        <div class="ptop">
+          <div><h2>📚 কোর্স</h2><p>কোর্স তৈরি, সম্পাদনা ও পরিচালনা</p></div>
+          <button class="btn blg bp" onclick="openCrs()">➕ নতুন কোর্স</button>
+        </div>
+        <div class="toolbar"><div class="ts"><span class="si">🔍</span><input type="text" id="srchCrs" placeholder="কোর্সের নাম বা কোড..." oninput="renCrs()"></div></div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>কোর্সের নাম</th><th>কোড</th><th>মেয়াদ</th><th>ফি</th><th>শিক্ষার্থী</th><th>আয়</th><th>অ্যাকশন</th></tr></thead>
+          <tbody id="crsBody"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- PAYMENTS -->
+      <div class="pg" id="pg-pay">
+        <div class="ptop">
+          <div><h2>💰 পেমেন্ট</h2><p>সকল পেমেন্ট রেকর্ড</p></div>
+          <button class="btn blg bp" onclick="openPay()">💵 নতুন পেমেন্ট</button>
+        </div>
+        <div class="toolbar">
+          <div class="ts"><span class="si">🔍</span><input type="text" id="srchPay" placeholder="নাম, তারিখ, কোর্স, পদ্ধতি..." oninput="renPay()"></div>
+          <select class="sel" id="flPayMth" onchange="renPay()"><option value="">সকল পদ্ধতি</option><option>নগদ</option><option>বিকাশ</option><option>নগদ অ্যাপ</option><option>রকেট</option><option>ব্যাংক</option></select>
+        </div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>তারিখ</th><th>শিক্ষার্থী</th><th>কোর্স</th><th>পরিমাণ</th><th>পদ্ধতি</th><th>নোট</th><th>অ্যাকশন</th></tr></thead>
+          <tbody id="payBody"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- DUE -->
+      <div class="pg" id="pg-due">
+        <div class="ptop"><div><h2>⚠️ বকেয়া তালিকা</h2><p>যাদের পেমেন্ট বাকি আছে — সর্বোচ্চ বকেয়া উপরে</p></div></div>
+        <div class="toolbar"><div class="ts"><span class="si">🔍</span><input type="text" id="srchDue" placeholder="নাম, মোবাইল, কোর্স..." oninput="renDue()"></div></div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>নাম</th><th>মোবাইল</th><th>কোর্স</th><th>মোট ফি</th><th>জমা</th><th>বকেয়া</th><th>অগ্রগতি</th><th>অ্যাকশন</th></tr></thead>
+          <tbody id="dueBody"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- CERTS -->
+      <div class="pg" id="pg-cert">
+        <div class="ptop">
+          <div><h2>🎓 সার্টিফিকেট</h2><p>সার্টিফিকেট তৈরি ও পরিচালনা</p></div>
+          <button class="btn blg bp" onclick="openCert()">📜 নতুন সার্টিফিকেট</button>
+        </div>
+        <div class="toolbar"><div class="ts"><span class="si">🔍</span><input type="text" id="srchCert" placeholder="নাম, নম্বর, কোর্স..." oninput="renCert()"></div></div>
+        <div class="card"><div class="tw"><table>
+          <thead><tr><th>#</th><th>শিক্ষার্থী</th><th>কোর্স</th><th>সার্টিফিকেট নং</th><th>ইস্যু তারিখ</th><th>গ্রেড</th><th>অ্যাকশন</th></tr></thead>
+          <tbody id="certBody"></tbody>
+        </table></div></div>
+      </div>
+
+      <!-- CALCULATOR -->
+      <div class="pg" id="pg-calc">
+        <div class="ptop"><div><h2>🔢 ক্যালকুলেটর</h2><p>সাধারণ হিসাব ও ইতিহাস — কীবোর্ড সাপোর্ট আছে</p></div></div>
+        <div class="co">
+          <div class="cw">
+            <div class="cd"><div class="ce" id="cExpr"></div><div class="cn" id="cNum">0</div></div>
+            <div class="cgrid">
+              <button class="cb cfn" onclick="cFn('AC')">AC</button>
+              <button class="cb cfn" onclick="cFn('+/-')">+/-</button>
+              <button class="cb cfn" onclick="cFn('%')" style="color:#30d158">%</button>
+              <button class="cb cop" onclick="cIn('÷')">÷</button>
+              <button class="cb cn2" onclick="cIn('7')">7</button>
+              <button class="cb cn2" onclick="cIn('8')">8</button>
+              <button class="cb cn2" onclick="cIn('9')">9</button>
+              <button class="cb cop" onclick="cIn('×')">×</button>
+              <button class="cb cn2" onclick="cIn('4')">4</button>
+              <button class="cb cn2" onclick="cIn('5')">5</button>
+              <button class="cb cn2" onclick="cIn('6')">6</button>
+              <button class="cb cop" onclick="cIn('-')">−</button>
+              <button class="cb cn2" onclick="cIn('1')">1</button>
+              <button class="cb cn2" onclick="cIn('2')">2</button>
+              <button class="cb cn2" onclick="cIn('3')">3</button>
+              <button class="cb cop" onclick="cIn('+')">+</button>
+              <button class="cb cn2 cwide" onclick="cIn('0')">0</button>
+              <button class="cb cn2" onclick="cIn('.')">.</button>
+              <button class="cb ceq" onclick="cEq()">=</button>
+            </div>
+          </div>
+          <div class="chp">
+            <h4>📋 হিসাবের ইতিহাস</h4>
+            <div id="cHL"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0">এখনো কোন হিসাব নেই</p></div>
+            <button class="btn bo bsm" style="margin-top:10px;width:100%;justify-content:center" onclick="clearCalcHist()">🗑️ ইতিহাস মুছুন</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="pg" id="pg-settings">
+        <div class="ptop"><div><h2>⚙️ সেটিংস</h2><p>অ্যাকাউন্ট, ব্যাকআপ ও অ্যাপ সেটিংস</p></div></div>
+        <div class="sg">
+          <div class="ss">
+            <h4>👤 অ্যাকাউন্ট তথ্য</h4>
+            <div style="text-align:center;padding:14px 0;border-bottom:1px solid var(--border);margin-bottom:14px">
+              <div style="position:relative;width:80px;margin:0 auto 12px">
+                <div id="sAvt" style="width:80px;height:80px;border-radius:50%;background:#111827;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;font-weight:700;overflow:hidden;border:3px solid var(--border)"></div>
+                <div id="sAvtCam" onclick="document.getElementById('avatarFileInput').click()" style="position:absolute;bottom:0;right:0;width:26px;height:26px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="ছবি পরিবর্তন করুন">📷</div>
+              </div>
+              <div style="font-weight:700;font-size:15px" id="sNm">—</div>
+              <div style="color:var(--muted);font-size:13px;margin-top:2px" id="sUsr">—</div>
+              <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+                <button class="btn bo bsm" onclick="document.getElementById('avatarFileInput').click()">🖼️ ছবি যোগ/পরিবর্তন</button>
+                <button class="btn bdel bsm" id="btnDelAvatar" onclick="deleteAvatar()" style="display:none">🗑️ ছবি মুছুন</button>
+              </div>
+              <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+            </div>
+            <div class="sr"><div class="sl">পাসওয়ার্ড পরিবর্তন</div><button class="btn bo bsm" onclick="changePass()">🔒 পরিবর্তন করুন</button></div>
+            <div class="sr"><div class="sl">প্রতিষ্ঠানের নাম</div><input type="text" id="instNm" value="Learning Center" style="width:190px;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--fn)"></div>
+            <div class="sr"><div class="sl">পরিচালকের নাম</div><input type="text" id="ownerNm" value="MD RAFIQUL ISLAM SK" style="width:230px;padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;outline:none;font-family:var(--fn)"></div>
+            <button class="btn bp bfw" onclick="saveSettings()">💾 সেটিংস সংরক্ষণ</button>
+          </div>
+
+          <div class="ss">
+            <h4>☁️ ব্যাকআপ ও রিস্টোর</h4>
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:12px;font-size:13px;color:#92400e">
+              ⚠️ ডেটা শুধু এই কম্পিউটারে আছে। নিয়মিত ব্যাকআপ করুন।
+            </div>
+            <button class="btn bp bfw" onclick="exportData()">📤 TXT ফাইল হিসেবে ব্যাকআপ করুন</button>
+            <button class="btn bo bfw" onclick="document.getElementById('impFile').click()">📥 TXT ফাইল থেকে রিস্টোর করুন</button>
+            <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
+            <button class="btn bo bfw" onclick="openBackupModal()">☁️ Google Drive ব্যাকআপ গাইড</button>
+            <div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center">শেষ ব্যাকআপ: <span id="lastBkp">কখনো করা হয়নি</span></div>
+          </div>
+
+          <div class="ss">
+            <h4>📊 ডেটা পরিসংখ্যান</h4>
+            <div class="sr"><div class="sl">মোট শিক্ষার্থী</div><span id="ss1" style="font-weight:700">0</span></div>
+            <div class="sr"><div class="sl">মোট কোর্স</div><span id="ss2" style="font-weight:700">0</span></div>
+            <div class="sr"><div class="sl">মোট পেমেন্ট রেকর্ড</div><span id="ss3" style="font-weight:700">0</span></div>
+            <div class="sr"><div class="sl">মোট সার্টিফিকেট</div><span id="ss4" style="font-weight:700">0</span></div>
+            <div class="sr"><div class="sl">মোট আয়</div><span id="ss5" style="font-weight:700;color:var(--success)">৳০</span></div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+            <button class="btn bdel bfw" onclick="clearAll()">🗑️ সব ডেটা মুছুন</button>
+          </div>
+
+          <div class="ss">
+            <h4>🔔 অ্যাপ সেটিংস</h4>
+            <div class="sr"><div class="sl">মুছার আগে নিশ্চিতকরণ<small>ভুলবশত মুছা রোধ করে</small></div><label class="tog"><input type="checkbox" id="togCfm" checked onchange="saveSettings()"><span class="togs"></span></label></div>
+            <div class="sr"><div class="sl">পেমেন্ট সীমা চেক<small>বকেয়ার বেশি পেমেন্ট রোধ</small></div><label class="tog"><input type="checkbox" id="togPayLmt" checked onchange="saveSettings()"><span class="togs"></span></label></div>
+            <div class="sr"><div class="sl">স্বয়ংক্রিয় সার্টিফিকেট নম্বর<small>নতুনটি তৈরিতে সাজেস্ট করবে</small></div><label class="tog"><input type="checkbox" id="togAutoCert" checked onchange="saveSettings()"><span class="togs"></span></label></div>
+            <div class="sr"><div class="sl">টেবিল রো হাইলাইট</div><label class="tog"><input type="checkbox" id="togHL" checked onchange="saveSettings()"><span class="togs"></span></label></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TUTORIAL PAGE -->
+      <div class="pg" id="pg-tutorial">
+        <div class="ptop"><div><h2>📖 ব্যবহার গাইড</h2><p>Learning Center ম্যানেজমেন্ট সিস্টেম ব্যবহারের সম্পূর্ণ নির্দেশিকা</p></div></div>
+
+        <!-- Quick Nav -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px">
+          <a href="#tut-login"   class="tut-chip">🔑 লগইন</a>
+          <a href="#tut-dash"    class="tut-chip">📊 ড্যাশবোর্ড</a>
+          <a href="#tut-student" class="tut-chip">👨‍🎓 শিক্ষার্থী</a>
+          <a href="#tut-course"  class="tut-chip">📚 কোর্স</a>
+          <a href="#tut-payment" class="tut-chip">💰 পেমেন্ট</a>
+          <a href="#tut-due"     class="tut-chip">⚠️ বকেয়া</a>
+          <a href="#tut-cert"    class="tut-chip">🎓 সার্টিফিকেট</a>
+          <a href="#tut-backup"  class="tut-chip">☁️ ব্যাকআপ</a>
+          <a href="#tut-calc"    class="tut-chip">🔢 ক্যালকুলেটর</a>
+        </div>
+
+        <!-- 1. LOGIN -->
+        <div class="tut-section" id="tut-login">
+          <div class="tut-header"><span class="tut-num">১</span><h3>🔑 লগইন ও অ্যাকাউন্ট</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>প্রথমবার ব্যবহার:</strong> "নতুন অ্যাকাউন্ট" ট্যাবে গিয়ে পুরো নাম, ব্যবহারকারীর নাম (ইংরেজিতে) এবং পাসওয়ার্ড দিন। প্রথম অ্যাকাউন্টটি স্বয়ংক্রিয়ভাবে <strong>Admin</strong> হবে।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>লগইন করুন:</strong> ব্যবহারকারীর নাম ও পাসওয়ার্ড দিয়ে লগইন করুন। Enter চাপলেও কাজ করবে।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>গেস্ট মোড:</strong> পাসওয়ার্ড ছাড়াই দেখতে চাইলে "গেস্ট হিসেবে প্রবেশ করুন" বাটনে ক্লিক করুন।</div></div>
+                <div class="tut-step"><span class="step-dot">৪</span><div><strong>প্রোফাইল ছবি:</strong> উপরের ডান কোণে Avatar-এ hover করুন → 📷 বাটনে ক্লিক করুন → ছবি আপলোড করুন।</div></div>
+                <div class="tut-tip">💡 পাসওয়ার্ড পরিবর্তন করতে: Settings → অ্যাকাউন্ট তথ্য → "🔒 পরিবর্তন করুন"</div>
+              </div>
+              <div class="tut-screen" style="background:linear-gradient(135deg,#0a0a0a,#1a1a2e)">
+                <div style="text-align:center;padding:20px">
+                  <div style="width:50px;height:50px;background:#fff;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;color:#000">LC</div>
+                  <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:4px">🎓 Learning Center</div>
+                  <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:6px;margin:10px 0;display:flex;gap:4px">
+                    <div style="flex:1;background:rgba(255,255,255,.15);border-radius:6px;padding:6px;color:#fff;font-size:11px;text-align:center">🔑 লগইন</div>
+                    <div style="flex:1;padding:6px;color:rgba(255,255,255,.4);font-size:11px;text-align:center">📝 নতুন</div>
+                  </div>
+                  <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px;color:rgba(255,255,255,.5);font-size:11px;margin-bottom:8px;text-align:left">👤 ব্যবহারকারীর নাম</div>
+                  <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px;color:rgba(255,255,255,.5);font-size:11px;margin-bottom:10px;text-align:left">🔒 পাসওয়ার্ড</div>
+                  <div style="background:#fff;border-radius:8px;padding:9px;color:#000;font-size:12px;font-weight:700">প্রবেশ করুন →</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. DASHBOARD -->
+        <div class="tut-section" id="tut-dash">
+          <div class="tut-header"><span class="tut-num">২</span><h3>📊 ড্যাশবোর্ড</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>পরিসংখ্যান কার্ড:</strong> উপরের ৪টি কার্ডে মোট শিক্ষার্থী, কোর্স, আয় ও বকেয়ার সংখ্যা দেখা যাবে। রিয়েলটাইমে আপডেট হয়।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>সাম্প্রতিক ভর্তি:</strong> বাম প্যানেলে সর্বশেষ ৬ জন ভর্তি হওয়া শিক্ষার্থী দেখা যাবে।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>সাম্প্রতিক পেমেন্ট:</strong> ডান প্যানেলে সর্বশেষ ৬টি পেমেন্ট দেখা যাবে।</div></div>
+                <div class="tut-step"><span class="step-dot">৪</span><div><strong>গ্লোবাল সার্চ:</strong> উপরের সার্চ বারে যেকোনো কিছু লিখলে শিক্ষার্থী পেজে ফিল্টার হয়ে যাবে।</div></div>
+                <div class="tut-tip">💡 সাইডবারের লাল সংখ্যা মানে সেখানে মনোযোগ দেওয়া দরকার (যেমন বকেয়া শিক্ষার্থীর সংখ্যা)।</div>
+              </div>
+              <div class="tut-screen">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+                  <div style="background:#eff6ff;border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">👨‍🎓</span><div><div style="font-size:10px;color:#666">শিক্ষার্থী</div><div style="font-weight:700;font-size:16px">24</div></div></div>
+                  <div style="background:#f0fdf4;border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">📚</span><div><div style="font-size:10px;color:#666">কোর্স</div><div style="font-weight:700;font-size:16px">5</div></div></div>
+                  <div style="background:#fff7ed;border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">💰</span><div><div style="font-size:10px;color:#666">মোট আয়</div><div style="font-weight:700;font-size:14px">৳48,000</div></div></div>
+                  <div style="background:#fef2f2;border-radius:8px;padding:10px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">⚠️</span><div><div style="font-size:10px;color:#666">বকেয়া</div><div style="font-weight:700;font-size:14px;color:#dc2626">৳12,000</div></div></div>
+                </div>
+                <div style="background:#f8fafc;border-radius:8px;padding:8px;font-size:11px">
+                  <div style="font-weight:700;margin-bottom:6px">📋 সাম্প্রতিক ভর্তি</div>
+                  <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9"><span>রাহেলা বেগম</span><span style="background:#dcfce7;color:#16a34a;padding:2px 6px;border-radius:8px;font-size:10px">সম্পূর্ণ</span></div>
+                  <div style="display:flex;justify-content:space-between;padding:4px 0"><span>করিম সাহেব</span><span style="background:#fef9c3;color:#b45309;padding:2px 6px;border-radius:8px;font-size:10px">বকেয়া</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. STUDENTS -->
+        <div class="tut-section" id="tut-student">
+          <div class="tut-header"><span class="tut-num">৩</span><h3>👨‍🎓 শিক্ষার্থী ব্যবস্থাপনা</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>নতুন শিক্ষার্থী যোগ:</strong> "➕ নতুন শিক্ষার্থী" বাটনে ক্লিক করুন। নাম, মোবাইল ১, মোবাইল ২ (ঐচ্ছিক), পিতার নাম, ঠিকানা, কোর্স ও ভর্তির তারিখ পূরণ করুন।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>ভর্তির সময় পেমেন্ট:</strong> "জমাকৃত ফি" ঘরে ভর্তির সময় যা নেওয়া হয়েছে সেটা দিন। বাকি অংশ স্বয়ংক্রিয়ভাবে বকেয়া হিসেবে দেখাবে।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>সম্পাদনা:</strong> যেকোনো শিক্ষার্থীর পাশে "✏️ সম্পাদনা" বাটন দিয়ে তথ্য পরিবর্তন করুন।</div></div>
+                <div class="tut-step"><span class="step-dot">৪</span><div><strong>ফিল্টার ও সার্চ:</strong> উপরের সার্চ বারে নাম/মোবাইল/পিতা/কোর্স লিখুন। স্ট্যাটাস ও কোর্স অনুযায়ীও ফিল্টার করা যাবে।</div></div>
+                <div class="tut-step"><span class="step-dot">৫</span><div><strong>দ্রুত পেমেন্ট:</strong> বকেয়া শিক্ষার্থীর পাশে "💵" বাটনে ক্লিক করলে সরাসরি পেমেন্ট উইন্ডো খুলবে।</div></div>
+                <div class="tut-tip">💡 অগ্রগতি কলামে রঙিন বার দেখা যাবে — সবুজ মানে সম্পূর্ণ, হলুদ মানে আংশিক, লাল মানে বেশিরভাগ বকেয়া।</div>
+              </div>
+              <div class="tut-screen">
+                <div style="background:#f8fafc;border-radius:8px;padding:10px">
+                  <div style="font-weight:700;font-size:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">👨‍🎓 শিক্ষার্থী তালিকা <span style="background:#111827;color:#fff;padding:4px 10px;border-radius:6px;font-size:10px">➕ নতুন</span></div>
+                  <div style="background:#fff;border-radius:6px;padding:8px;margin-bottom:6px;border:1px solid #e2e8f0;font-size:11px">
+                    <div style="font-weight:700">রাহেলা বেগম</div>
+                    <div style="color:#666;margin:2px 0">📱 01712345678 📱 01812345678</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                      <div style="flex:1;background:#dcfce7;height:5px;border-radius:3px;margin-right:6px"><div style="width:100%;background:#16a34a;height:100%;border-radius:3px"></div></div>
+                      <span style="background:#dcfce7;color:#16a34a;padding:2px 6px;border-radius:8px;font-size:10px">সম্পূর্ণ</span>
+                    </div>
+                  </div>
+                  <div style="background:#fff;border-radius:6px;padding:8px;border:1px solid #fecaca;font-size:11px">
+                    <div style="font-weight:700">করিম সাহেব</div>
+                    <div style="color:#666;margin:2px 0">📱 01987654321</div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+                      <div style="flex:1;background:#fef2f2;height:5px;border-radius:3px;margin-right:6px"><div style="width:40%;background:#dc2626;height:100%;border-radius:3px"></div></div>
+                      <span style="background:#fef9c3;color:#b45309;padding:2px 6px;border-radius:8px;font-size:10px">বকেয়া</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. COURSE -->
+        <div class="tut-section" id="tut-course">
+          <div class="tut-header"><span class="tut-num">৪</span><h3>📚 কোর্স ব্যবস্থাপনা</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>নতুন কোর্স যোগ:</strong> কোর্সের নাম, কোড (যেমন WD-101), মেয়াদ (মাসে) এবং ফি দিন। বিবরণ ঐচ্ছিক।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>কোর্স সম্পাদনা:</strong> কোর্সের নাম বদলালে সেই কোর্সের সকল শিক্ষার্থীর রেকর্ডেও স্বয়ংক্রিয়ভাবে আপডেট হবে।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>কোর্স মুছুন:</strong> যে কোর্সে কোনো শিক্ষার্থী নেই শুধু সেটাই মুছা যাবে। শিক্ষার্থী থাকলে মুছা যাবে না।</div></div>
+                <div class="tut-step"><span class="step-dot">৪</span><div><strong>আয় দেখুন:</strong> প্রতিটি কোর্সের পাশে সেই কোর্স থেকে মোট কত আয় হয়েছে দেখা যাবে।</div></div>
+                <div class="tut-tip">💡 শিক্ষার্থী যোগ করার আগে অবশ্যই কোর্স তৈরি করুন।</div>
+              </div>
+              <div class="tut-screen">
+                <div style="font-size:11px">
+                  <div style="background:#fff;border-radius:8px;padding:10px;margin-bottom:6px;border:1px solid #e2e8f0">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <div><div style="font-weight:700">Web Design</div><div style="color:#666;margin-top:2px">🔖 WD-101 · ⏱️ 3 মাস · 💰 ৳5,000</div></div>
+                      <span style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:8px;font-size:10px">12 জন</span>
+                    </div>
+                    <div style="margin-top:6px;color:#16a34a;font-weight:600;font-size:11px">মোট আয়: ৳48,000</div>
+                  </div>
+                  <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #e2e8f0">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <div><div style="font-weight:700">Graphic Design</div><div style="color:#666;margin-top:2px">🔖 GD-102 · ⏱️ 4 মাস · 💰 ৳7,000</div></div>
+                      <span style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:8px;font-size:10px">8 জন</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. PAYMENT -->
+        <div class="tut-section" id="tut-payment">
+          <div class="tut-header"><span class="tut-num">৫</span><h3>💰 পেমেন্ট ব্যবস্থাপনা</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>নতুন পেমেন্ট:</strong> "💵 নতুন পেমেন্ট" বাটনে ক্লিক করুন। শিক্ষার্থী নির্বাচন করলে তার বকেয়ার পরিমাণ সবুজ বক্সে দেখাবে।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>পেমেন্ট সীমা:</strong> বকেয়ার বেশি পেমেন্ট নেওয়া যাবে না (Settings থেকে বন্ধ করা যাবে)।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>পেমেন্ট পদ্ধতি:</strong> নগদ, বিকাশ, নগদ অ্যাপ, রকেট বা ব্যাংক নির্বাচন করুন।</div></div>
+                <div class="tut-step"><span class="step-dot">৪</span><div><strong>ফিল্টার:</strong> পেমেন্ট পদ্ধতি বা নাম/তারিখ অনুযায়ী ফিল্টার করুন।</div></div>
+                <div class="tut-tip">⚠️ পেমেন্ট মুছলে শিক্ষার্থীর বকেয়া স্বয়ংক্রিয়ভাবে আপডেট হবে না। তাই সতর্কতার সাথে মুছুন।</div>
+              </div>
+              <div class="tut-screen">
+                <div style="background:#fff;border-radius:8px;padding:12px;border:1px solid #e2e8f0;font-size:11px">
+                  <div style="font-weight:700;margin-bottom:8px">💰 পেমেন্ট গ্রহণ</div>
+                  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;margin-bottom:6px;color:#666">শিক্ষার্থী নির্বাচন করুন ▾</div>
+                  <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:8px;margin-bottom:8px">
+                    <strong>রাহেলা বেগম</strong> — Web Design<br>
+                    মোট: ৳5,000 | জমা: ৳3,000 | <strong style="color:#dc2626">বকেয়া: ৳2,000</strong>
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;color:#666">৳ পরিমাণ</div>
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;color:#666">📅 তারিখ</div>
+                  </div>
+                  <div style="background:#16a34a;border-radius:6px;padding:8px;color:#fff;text-align:center;font-weight:700">💾 পেমেন্ট সংরক্ষণ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. DUE -->
+        <div class="tut-section" id="tut-due">
+          <div class="tut-header"><span class="tut-num">৬</span><h3>⚠️ বকেয়া তালিকা</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>বকেয়া দেখুন:</strong> যে সকল শিক্ষার্থীর পেমেন্ট বাকি আছে তারা এখানে দেখাবে। সর্বোচ্চ বকেয়া উপরে থাকবে।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>দ্রুত পেমেন্ট:</strong> "💵 পেমেন্ট" বাটনে ক্লিক করলে সরাসরি সেই শিক্ষার্থীর পেমেন্ট উইন্ডো খুলবে।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>সাইডবার ব্যাজ:</strong> সাইডবারে "বকেয়া" মেনুতে লাল সংখ্যায় বকেয়া শিক্ষার্থীর মোট সংখ্যা দেখা যাবে।</div></div>
+                <div class="tut-tip">💡 সার্চ করে নির্দিষ্ট শিক্ষার্থীর বকেয়া দেখুন।</div>
+              </div>
+              <div class="tut-screen">
+                <div style="font-size:11px">
+                  <div style="background:#fff;border-radius:8px;padding:10px;border:1px solid #fecaca;margin-bottom:6px">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <div><div style="font-weight:700">করিম সাহেব</div><div style="color:#666">Web Design</div></div>
+                      <div style="color:#dc2626;font-weight:700">৳3,500</div>
+                    </div>
+                    <div style="margin-top:6px;display:flex;align-items:center;gap:6px">
+                      <div style="flex:1;background:#fef2f2;height:5px;border-radius:3px"><div style="width:30%;background:#dc2626;height:100%;border-radius:3px"></div></div>
+                      <span style="font-size:10px;color:#666">30%</span>
+                      <span style="background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;padding:2px 8px;border-radius:6px;font-size:10px;cursor:pointer">💵 পেমেন্ট</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 7. CERTIFICATE -->
+        <div class="tut-section" id="tut-cert">
+          <div class="tut-header"><span class="tut-num">৭</span><h3>🎓 সার্টিফিকেট</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>সার্টিফিকেট তৈরি:</strong> শিক্ষার্থী নির্বাচন করুন। সার্টিফিকেট নম্বর স্বয়ংক্রিয়ভাবে সাজেস্ট হবে (যেমন LC-2024-001)।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>গ্রেড দিন:</strong> A+, A, B+ ইত্যাদি গ্রেড দেওয়া যাবে (ঐচ্ছিক)।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>সার্চ:</strong> শিক্ষার্থীর নাম, সার্টিফিকেট নম্বর বা কোর্সের নাম দিয়ে সার্চ করুন।</div></div>
+                <div class="tut-tip">💡 Settings-এ "স্বয়ংক্রিয় সার্টিফিকেট নম্বর" চালু রাখলে নম্বর আপনা-আপনি বসে যাবে।</div>
+              </div>
+              <div class="tut-screen">
+                <div style="background:#fff;border-radius:8px;padding:12px;border:1px solid #e2e8f0;font-size:11px">
+                  <div style="font-weight:700;margin-bottom:8px">📜 সার্টিফিকেট তৈরি</div>
+                  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;margin-bottom:6px;color:#666">রাহেলা বেগম — Web Design ▾</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;color:#374151;font-weight:600">LC-2024-001</div>
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;color:#666">📅 তারিখ</div>
+                  </div>
+                  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:6px;margin-bottom:8px;color:#666">গ্রেড: A+</div>
+                  <div style="background:#111827;border-radius:6px;padding:8px;color:#fff;text-align:center;font-weight:700">🎓 তৈরি করুন</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. BACKUP -->
+        <div class="tut-section" id="tut-backup">
+          <div class="tut-header"><span class="tut-num">৮</span><h3>☁️ ব্যাকআপ ও রিস্টোর</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>TXT ব্যাকআপ:</strong> Settings → ব্যাকআপ → "📤 TXT ফাইল হিসেবে ব্যাকআপ করুন" বাটনে ক্লিক করুন। একটি `.txt` ফাইল ডাউনলোড হবে।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>Drive-এ সংরক্ষণ:</strong> ডাউনলোড হওয়া TXT ফাইলটি Google Drive বা যেকোনো জায়গায় রাখুন।</div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>রিস্টোর:</strong> "📥 TXT ফাইল থেকে রিস্টোর করুন" বাটনে ক্লিক করে আগের ব্যাকআপ ফাইল বেছে নিন।</div></div>
+                <div class="tut-step"><span class="step-dot">৪</span><div><strong>ব্যাকআপের নাম:</strong> তারিখ অনুযায়ী নাম রাখুন, যেমন <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:11px">lc_2024-05-01.txt</code></div></div>
+                <div class="tut-tip">⚠️ প্রতি সপ্তাহে অন্তত একবার ব্যাকআপ নিন। ব্রাউজার ক্লিয়ার করলে ডেটা হারিয়ে যাবে।</div>
+              </div>
+              <div class="tut-screen">
+                <div style="font-size:11px">
+                  <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px;margin-bottom:8px;color:#92400e">⚠️ ডেটা শুধু এই কম্পিউটারে আছে। নিয়মিত ব্যাকআপ করুন।</div>
+                  <div style="background:#111827;border-radius:6px;padding:9px;color:#fff;text-align:center;font-weight:700;margin-bottom:6px">📤 TXT ফাইল ব্যাকআপ করুন</div>
+                  <div style="background:#fff;border:1.5px solid #e2e8f0;border-radius:6px;padding:9px;text-align:center;font-weight:600;margin-bottom:6px">📥 TXT ফাইল থেকে রিস্টোর</div>
+                  <div style="color:#666;text-align:center">শেষ ব্যাকআপ: ০১ মে ২০২৪</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. CALCULATOR -->
+        <div class="tut-section" id="tut-calc">
+          <div class="tut-header"><span class="tut-num">৯</span><h3>🔢 ক্যালকুলেটর</h3></div>
+          <div class="tut-body">
+            <div class="tut-cols">
+              <div class="tut-text">
+                <div class="tut-step"><span class="step-dot">১</span><div><strong>ব্যবহার:</strong> মাউস দিয়ে বাটনে ক্লিক করুন বা কীবোর্ড থেকে সংখ্যা টাইপ করুন।</div></div>
+                <div class="tut-step"><span class="step-dot">২</span><div><strong>কীবোর্ড শর্টকাট:</strong><br>
+                  <code style="background:#f1f5f9;padding:2px 5px;border-radius:3px;font-size:10px">0-9</code> সংখ্যা &nbsp;
+                  <code style="background:#f1f5f9;padding:2px 5px;border-radius:3px;font-size:10px">+ - * /</code> অপারেটর<br>
+                  <code style="background:#f1f5f9;padding:2px 5px;border-radius:3px;font-size:10px">Enter</code> সমান &nbsp;
+                  <code style="background:#f1f5f9;padding:2px 5px;border-radius:3px;font-size:10px">Esc</code> AC &nbsp;
+                  <code style="background:#f1f5f9;padding:2px 5px;border-radius:3px;font-size:10px">Backspace</code> মুছুন
+                </div></div>
+                <div class="tut-step"><span class="step-dot">৩</span><div><strong>ইতিহাস:</strong> ডান পাশে সর্বশেষ ২০টি হিসাব সংরক্ষিত থাকে। "ইতিহাস মুছুন" বাটনে মুছা যাবে।</div></div>
+                <div class="tut-tip">💡 ফি হিসাব, মোট আয় ও বকেয়া দ্রুত বের করতে ক্যালকুলেটর ব্যবহার করুন।</div>
+              </div>
+              <div class="tut-screen" style="background:#1c1c1e">
+                <div style="background:#000;border-radius:10px;padding:12px;margin-bottom:10px;text-align:right">
+                  <div style="color:#555;font-size:11px">5000 × 3 =</div>
+                  <div style="color:#fff;font-size:28px;font-weight:300;font-family:monospace">15000</div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+                  <div style="background:#2c2c2e;border-radius:8px;padding:10px;color:#fff;text-align:center;font-size:13px">AC</div>
+                  <div style="background:#2c2c2e;border-radius:8px;padding:10px;color:#fff;text-align:center;font-size:13px">+/-</div>
+                  <div style="background:#2c2c2e;border-radius:8px;padding:10px;color:#30d158;text-align:center;font-size:13px">%</div>
+                  <div style="background:#3a3a3c;border-radius:8px;padding:10px;color:#ff9f0a;text-align:center;font-size:13px">÷</div>
+                  <div style="background:#2c2c2e;border-radius:8px;padding:10px;color:#fff;text-align:center;font-size:13px">7</div>
+                  <div style="background:#2c2c2e;border-radius:8px;padding:10px;color:#fff;text-align:center;font-size:13px">8</div>
+                  <div style="background:#2c2c2e;border-radius:8px;padding:10px;color:#fff;text-align:center;font-size:13px">9</div>
+                  <div style="background:#3a3a3c;border-radius:8px;padding:10px;color:#ff9f0a;text-align:center;font-size:13px">×</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:linear-gradient(135deg,#0d0d0d,#1a1a2e);border-radius:16px;padding:28px;text-align:center;margin-top:8px">
+          <div style="font-size:32px;margin-bottom:10px">🎓</div>
+          <div style="color:#fff;font-weight:700;font-size:16px;margin-bottom:6px">Learning Center Management System</div>
+          <div style="color:rgba(255,255,255,.5);font-size:13px;margin-bottom:16px">সম্পূর্ণ অফলাইন · ডেটা আপনার কম্পিউটারে · নিরাপদ ও দ্রুত</div>
+          <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px;display:inline-block">
+            <div style="color:#fff;font-weight:700">MD RAFIQUL ISLAM SK</div>
+            <div style="color:rgba(255,255,255,.4);font-size:12px;margin-top:2px">প্রতিষ্ঠাতা ও পরিচালক</div>
+          </div>
+        </div>
+      </div><!-- /tutorial -->
+
+    </div><!-- /parea -->
+  </div><!-- /mlayout -->
+</div><!-- /appShell -->
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Student -->
+<div class="ov" id="mStu">
+  <div class="mb">
+    <div class="mh"><h3 id="mStuT">➕ নতুন শিক্ষার্থী</h3><button class="mcl" onclick="cm('mStu')">×</button></div>
+    <div class="mbdy">
+      <div class="fg2"><div class="fg"><label>নাম *</label><input type="text" id="sN" placeholder="পুরো নাম"></div><div class="fg"><label>পিতার নাম</label><input type="text" id="sF" placeholder="পিতার নাম"></div></div>
+      <div class="fg2"><div class="fg"><label>মোবাইল ১ *</label><input type="text" id="sPh" placeholder="01XXXXXXXXX" maxlength="11"></div><div class="fg"><label>মোবাইল ২ (ঐচ্ছিক)</label><input type="text" id="sPh2" placeholder="01XXXXXXXXX" maxlength="11"></div></div>
+      <div class="fg2"><div class="fg"><label>ভর্তির তারিখ *</label><input type="date" id="sD"></div><div class="fg"><label>ঠিকানা</label><input type="text" id="sA" placeholder="বর্তমান ঠিকানা"></div></div>
+      <div class="fg2"><div class="fg"><label>কোর্স *</label><select id="sC" onchange="onCC()"></select></div><div class="fg"><label>মোট ফি (টাকা)</label><input type="number" id="sTF" readonly></div></div>
+      <div class="fg2"><div class="fg"><label>জমাকৃত ফি (ভর্তিতে)</label><input type="number" id="sPF" value="0" min="0"></div><div class="fg"><label>প্রথম পেমেন্ট পদ্ধতি</label><select id="sFM"><option>নগদ</option><option>বিকাশ</option><option>নগদ অ্যাপ</option><option>রকেট</option><option>ব্যাংক</option></select></div></div>
+      <input type="hidden" id="sEid">
+    </div>
+    <div class="mft"><button class="btn bo" onclick="cm('mStu')">বাতিল</button><button class="btn bp" onclick="saveStu()">✅ সংরক্ষণ করুন</button></div>
+  </div>
+</div>
+
+<!-- Course -->
+<div class="ov" id="mCrs">
+  <div class="mb">
+    <div class="mh"><h3 id="mCrsT">➕ নতুন কোর্স</h3><button class="mcl" onclick="cm('mCrs')">×</button></div>
+    <div class="mbdy">
+      <div class="fg"><label>কোর্সের নাম *</label><input type="text" id="cN" placeholder="যেমন: Web Design"></div>
+      <div class="fg2"><div class="fg"><label>কোর্স কোড</label><input type="text" id="cCd" placeholder="WD-101"></div><div class="fg"><label>মেয়াদ (মাস)</label><input type="number" id="cDr" min="1" placeholder="3"></div></div>
+      <div class="fg"><label>ফি (টাকা) *</label><input type="number" id="cFe" min="0" placeholder="0"></div>
+      <div class="fg"><label>বিবরণ</label><textarea id="cDs" rows="2" placeholder="কোর্সের সংক্ষিপ্ত বিবরণ (ঐচ্ছিক)"></textarea></div>
+      <input type="hidden" id="cEid">
+    </div>
+    <div class="mft"><button class="btn bo" onclick="cm('mCrs')">বাতিল</button><button class="btn bp" onclick="saveCrs()">✅ সংরক্ষণ করুন</button></div>
+  </div>
+</div>
+
+<!-- Payment -->
+<div class="ov" id="mPay">
+  <div class="mb">
+    <div class="mh"><h3>💰 পেমেন্ট গ্রহণ</h3><button class="mcl" onclick="cm('mPay')">×</button></div>
+    <div class="mbdy">
+      <div class="fg"><label>শিক্ষার্থী *</label><select id="pStu" onchange="onPS()"></select></div>
+      <div class="ibox" id="pInfo"></div>
+      <div class="fg2"><div class="fg"><label>পরিমাণ (টাকা) *</label><input type="number" id="pAmt" min="1" placeholder="0"></div><div class="fg"><label>তারিখ *</label><input type="date" id="pDt"></div></div>
+      <div class="fg"><label>পেমেন্ট পদ্ধতি</label><select id="pMth"><option>নগদ</option><option>বিকাশ</option><option>নগদ অ্যাপ</option><option>রকেট</option><option>ব্যাংক</option></select></div>
+      <div class="fg"><label>নোট</label><textarea id="pNt" rows="2" placeholder="প্রয়োজনীয় নোট (ঐচ্ছিক)"></textarea></div>
+    </div>
+    <div class="mft"><button class="btn bo" onclick="cm('mPay')">বাতিল</button><button class="btn bsu" onclick="savePay()">💾 পেমেন্ট সংরক্ষণ</button></div>
+  </div>
+</div>
+
+<!-- Certificate -->
+<div class="ov" id="mCert">
+  <div class="mb">
+    <div class="mh"><h3>📜 সার্টিফিকেট তৈরি</h3><button class="mcl" onclick="cm('mCert')">×</button></div>
+    <div class="mbdy">
+      <div class="fg"><label>শিক্ষার্থী *</label><select id="ctStu"></select></div>
+      <div class="fg2"><div class="fg"><label>সার্টিফিকেট নম্বর *</label><input type="text" id="ctNum" placeholder="LC-2024-001"></div><div class="fg"><label>ইস্যু তারিখ *</label><input type="date" id="ctDt"></div></div>
+      <div class="fg"><label>গ্রেড/ফলাফল</label><input type="text" id="ctGr" placeholder="A+, A, B+ ইত্যাদি"></div>
+    </div>
+    <div class="mft"><button class="btn bo" onclick="cm('mCert')">বাতিল</button><button class="btn bp" onclick="saveCert()">🎓 তৈরি করুন</button></div>
+  </div>
+</div>
+
+<!-- Change Password -->
+<div class="ov" id="mPass">
+  <div class="mb">
+    <div class="mh"><h3>🔒 পাসওয়ার্ড পরিবর্তন</h3><button class="mcl" onclick="cm('mPass')">×</button></div>
+    <div class="mbdy">
+      <div class="fg"><label>বর্তমান পাসওয়ার্ড</label><input type="password" id="cpOld" placeholder="বর্তমান পাসওয়ার্ড"></div>
+      <div class="fg"><label>নতুন পাসওয়ার্ড</label><input type="password" id="cpNew" placeholder="নতুন পাসওয়ার্ড (কমপক্ষে ৬ অক্ষর)"></div>
+      <div class="fg"><label>নতুন পাসওয়ার্ড নিশ্চিত</label><input type="password" id="cpNew2" placeholder="আবার লিখুন"></div>
+    </div>
+    <div class="mft"><button class="btn bo" onclick="cm('mPass')">বাতিল</button><button class="btn bp" onclick="savePass()">🔒 পরিবর্তন করুন</button></div>
+  </div>
+</div>
+
+<!-- Drive Backup Guide -->
+<div class="ov" id="mBkp">
+  <div class="mb">
+    <div class="mh"><h3>☁️ Google Drive ব্যাকআপ গাইড</h3><button class="mcl" onclick="cm('mBkp')">×</button></div>
+    <div class="mbdy">
+      <p style="font-size:13.5px;color:var(--muted);margin-bottom:16px">নিচের ধাপগুলো অনুসরণ করে Google Drive-এ ব্যাকআপ রাখুন:</p>
+      <div class="bk-step"><h5>ধাপ ১ — TXT ফাইল এক্সপোর্ট করুন</h5><p>নিচের বাটনে ক্লিক করুন। একটি <code>.txt</code> ফাইল ডাউনলোড হবে।</p><button class="btn bp bsm" style="margin-top:8px" onclick="exportData();cm('mBkp')">📤 এখনই এক্সপোর্ট করুন</button></div>
+      <div class="bk-step"><h5>ধাপ ২ — Google Drive-এ আপলোড করুন</h5><p><a href="https://drive.google.com" target="_blank" style="color:var(--accent)">drive.google.com</a> খুলুন। যেকোনো ফোল্ডারে TXT ফাইলটি ড্র্যাগ করে দিন বা <code>+ New → File Upload</code> করুন।</p></div>
+      <div class="bk-step"><h5>ধাপ ৩ — রিস্টোর করতে</h5><p>Drive থেকে TXT ফাইলটি ডাউনলোড করুন। তারপর এই অ্যাপে <code>📥 TXT ফাইল থেকে রিস্টোর</code> করুন।</p></div>
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px;font-size:13px;color:#166534">
+        ✅ <strong>পরামর্শ:</strong> প্রতি সপ্তাহে একবার ব্যাকআপ নিন। ফাইলটি একটি তারিখ দিয়ে নাম রাখুন যেমন <code>lc_backup_2024-01-15.txt</code>
+      </div>
+    </div>
+    <div class="mft"><button class="btn bp" onclick="cm('mBkp')">বুঝেছি</button></div>
+  </div>
+</div>
+
+<div class="tw2" id="tWrap"></div>
+
+<script>
+// ═══════════════════════════════════════════
+// AUTH  — সম্পূর্ণ লোকাল, কোনো এক্সটার্নাল ডিপেন্ডেন্সি নেই
+// ═══════════════════════════════════════════
+let currentUser = null;
+
+function hashPass(p){ let h=0; for(let i=0;i<p.length;i++) h=((h<<5)-h)+p.charCodeAt(i),h|=0; return h.toString(36); }
+
+function switchTab(t){
+  document.querySelectorAll('.l-tab').forEach((b,i)=>b.classList.toggle('on',i===(t==='login'?0:1)));
+  document.querySelectorAll('.l-panel').forEach((p,i)=>p.classList.toggle('on',i===(t==='login'?0:1)));
+}
+
+function doLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value;
+  const err=document.getElementById('loginErr');
+  if(!u||!p){ err.style.display='block'; err.innerText='❌ সব ঘর পূরণ করুন'; return; }
+  const users=J('lc_users')||{};
+  if(users[u] && users[u].hash===hashPass(p)){
+    err.style.display='none';
+    currentUser={username:u,name:users[u].name||u,role:users[u].role||'user'};
+    S('lc_session',currentUser); launch();
+  } else { err.style.display='block'; err.innerText='❌ ব্যবহারকারীর নাম বা পাসওয়ার্ড ভুল'; }
+}
+
+function doRegister(){
+  const nm=document.getElementById('regName').value.trim();
+  const u=document.getElementById('regUser').value.trim();
+  const p=document.getElementById('regPass').value;
+  const p2=document.getElementById('regPass2').value;
+  const err=document.getElementById('regErr');
+  err.style.display='block';
+  if(!nm||!u||!p){ err.innerText='❌ সব ঘর পূরণ করুন'; return; }
+  if(!/^[a-zA-Z0-9_]+$/.test(u)){ err.innerText='❌ ব্যবহারকারীর নাম শুধু A-Z, 0-9 ও _ দিয়ে হবে'; return; }
+  if(p.length<6){ err.innerText='❌ পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে'; return; }
+  if(p!==p2){ err.innerText='❌ দুটি পাসওয়ার্ড মিলছে না'; return; }
+  const users=J('lc_users')||{};
+  if(users[u]){ err.innerText='❌ এই ব্যবহারকারীর নাম আগে থেকেই আছে'; return; }
+  users[u]={name:nm,hash:hashPass(p),role:Object.keys(users).length===0?'admin':'user',createdAt:new Date().toISOString()};
+  S('lc_users',users);
+  err.style.display='none';
+  document.getElementById('loginUser').value=u;
+  document.getElementById('loginPass').value='';
+  switchTab('login');
+  toast('✅ অ্যাকাউন্ট তৈরি হয়েছে! এখন লগইন করুন','success');
+}
+
+function guestLogin(){
+  currentUser={username:'guest',name:'গেস্ট ব্যবহারকারী',role:'guest'};
+  S('lc_session',currentUser); launch();
+  toast('👁️ গেস্ট মোডে প্রবেশ করা হয়েছে','warning');
+}
+
+function launch(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appShell').classList.add('on');
+  updateUserUI(); loadSettings(); refreshAll();
+}
+
+function updateUserUI(){
+  if(!currentUser) return;
+  const nm=currentUser.name, u=currentUser.username;
+  document.getElementById('udName').innerText=nm;
+  document.getElementById('udRole').innerText=currentUser.role==='admin'?'👑 অ্যাডমিন':currentUser.role==='guest'?'👁️ গেস্ট':'👤 ব্যবহারকারী';
+  document.getElementById('sNm').innerText=nm;
+  document.getElementById('sUsr').innerText='@'+u;
+  applyAvatar();
+}
+
+function getAvatarKey(){ return 'lc_avatar_'+(currentUser?.username||'guest'); }
+
+function applyAvatar(){
+  const pic = localStorage.getItem(getAvatarKey());
+  const nm  = currentUser?.name||'?';
+  const initials = nm.charAt(0).toUpperCase();
+
+  // Topbar avatar
+  const av = document.getElementById('avBtn');
+  if(pic){
+    av.innerHTML = `<img src="${pic}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">
+      <div class="av-cam" onclick="event.stopPropagation();openAvatarMenu()" title="ছবি পরিবর্তন করুন">📷</div>`;
+  } else {
+    av.innerHTML = `${initials}<div class="av-cam" onclick="event.stopPropagation();openAvatarMenu()" title="ছবি যোগ করুন">📷</div>`;
+  }
+
+  // Settings avatar
+  const sa = document.getElementById('sAvt');
+  if(sa){
+    if(pic){
+      sa.innerHTML=`<img src="${pic}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`;
+      document.getElementById('btnDelAvatar').style.display='inline-flex';
+    } else {
+      sa.innerHTML=initials;
+      sa.style.fontSize='32px';
+      document.getElementById('btnDelAvatar').style.display='none';
+    }
+  }
+}
+
+// Avatar upload
+function uploadAvatar(inp){
+  const file=inp.files[0]; if(!file) return;
+  if(file.size>3*1024*1024){ toast('ছবির আকার ৩MB এর বেশি হবে না','error'); inp.value=''; return; }
+  const reader=new FileReader();
+  reader.onload=e=>{
+    localStorage.setItem(getAvatarKey(), e.target.result);
+    applyAvatar();
+    toast('✅ প্রোফাইল ছবি আপডেট হয়েছে','success');
+  };
+  reader.readAsDataURL(file);
+  inp.value='';
+}
+
+// Delete avatar
+function deleteAvatar(){
+  if(!confirm('প্রোফাইল ছবি মুছে ফেলবেন?')) return;
+  localStorage.removeItem(getAvatarKey());
+  applyAvatar();
+  toast('🗑️ প্রোফাইল ছবি মুছা হয়েছে','warning');
+}
+
+// Avatar quick menu (from topbar cam icon)
+function openAvatarMenu(){
+  const pic=localStorage.getItem(getAvatarKey());
+  // Build a tiny popup near the avatar
+  let old=document.getElementById('avPopup'); if(old) old.remove();
+  const pop=document.createElement('div');
+  pop.id='avPopup';
+  pop.style.cssText='position:absolute;top:52px;right:0;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px;min-width:190px;box-shadow:0 10px 30px rgba(0,0,0,.14);z-index:400';
+  pop.innerHTML=`
+    <div style="font-size:12px;color:var(--muted);padding:6px 10px 8px;border-bottom:1px solid #f1f5f9;margin-bottom:4px;font-weight:600">প্রোফাইল ছবি</div>
+    <div class="udi" onclick="document.getElementById('avatarFileInput').click();this.closest('#avPopup').remove()">
+      ${pic?'🔄 ছবি পরিবর্তন করুন':'🖼️ ছবি যোগ করুন'}
+    </div>
+    ${pic?`<div class="udi red" onclick="deleteAvatar();this.closest('#avPopup').remove()">🗑️ ছবি মুছুন</div>`:''}
+  `;
+  document.getElementById('avBtn').parentElement.appendChild(pop);
+  setTimeout(()=>document.addEventListener('click', function h(e){ if(!pop.contains(e.target)){ pop.remove(); document.removeEventListener('click',h); }},true),50);
+}
+
+
+function doLogout(){
+  if(!confirm('লগআউট করতে চান?')) return;
+  localStorage.removeItem('lc_session');
+  currentUser=null;
+  document.getElementById('appShell').classList.remove('on');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginPass').value='';
+  toast('লগআউট হয়েছে','success');
+}
+
+function changePass(){ cm('mBkp'); om('mPass'); document.getElementById('cpOld').value=''; document.getElementById('cpNew').value=''; document.getElementById('cpNew2').value=''; }
+function savePass(){
+  const old=document.getElementById('cpOld').value;
+  const nw=document.getElementById('cpNew').value;
+  const nw2=document.getElementById('cpNew2').value;
+  if(nw.length<6){ toast('নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে','error'); return; }
+  if(nw!==nw2){ toast('দুটি পাসওয়ার্ড মিলছে না','error'); return; }
+  const users=J('lc_users')||{};
+  const u=currentUser.username;
+  if(!users[u]){ toast('গেস্ট মোডে পাসওয়ার্ড পরিবর্তন করা যাবে না','error'); return; }
+  if(users[u].hash!==hashPass(old)){ toast('বর্তমান পাসওয়ার্ড ভুল','error'); return; }
+  users[u].hash=hashPass(nw); S('lc_users',users);
+  cm('mPass'); toast('✅ পাসওয়ার্ড পরিবর্তন হয়েছে','success');
+}
+
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+let students=[],courses=[],payments=[],certificates=[],cfg={};
+let cDisp='0',cExprStr='',cNew=true,cHist=[];
+
+function J(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }
+function S(k,v){ localStorage.setItem(k,JSON.stringify(v)); autoSaveIndicator(); }
+function td(){ return new Date().toISOString().split('T')[0]; }
+
+function loadAll(){
+  students     = J('lc_students')     || [];
+  courses      = J('lc_courses')      || [];
+  payments     = J('lc_payments')     || [];
+  certificates = J('lc_certificates') || [];
+  cfg          = J('lc_cfg')          || {};
+}
+
+function autoSaveIndicator(){
+  const d=document.getElementById('sdot'), t=document.getElementById('stxt');
+  if(!d) return;
+  d.className='sdot busy'; t.innerText='সংরক্ষণ হচ্ছে...';
+  clearTimeout(window._saveT);
+  window._saveT=setTimeout(()=>{ d.className='sdot ok'; t.innerText='ডেটা সংরক্ষিত'; },600);
+}
+
+// ═══════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════
+function loadSettings(){
+  if(cfg.confirmDelete!==false) document.getElementById('togCfm').checked=true;
+  if(cfg.payLimit!==false)      document.getElementById('togPayLmt').checked=true;
+  if(cfg.autoCert!==false)      document.getElementById('togAutoCert').checked=true;
+  if(cfg.rowHL!==false)         document.getElementById('togHL').checked=true;
+  if(cfg.instName)  { document.getElementById('instNm').value=cfg.instName; document.getElementById('topInstName').innerText=cfg.instName; }
+  if(cfg.ownerName)   document.getElementById('ownerNm').value=cfg.ownerName;
+  if(cfg.lastBackup)  document.getElementById('lastBkp').innerText=cfg.lastBackup;
+}
+
+function saveSettings(){
+  cfg.confirmDelete = document.getElementById('togCfm').checked;
+  cfg.payLimit      = document.getElementById('togPayLmt').checked;
+  cfg.autoCert      = document.getElementById('togAutoCert').checked;
+  cfg.rowHL         = document.getElementById('togHL').checked;
+  cfg.instName      = document.getElementById('instNm').value;
+  cfg.ownerName     = document.getElementById('ownerNm').value;
+  S('lc_cfg',cfg);
+  document.getElementById('topInstName').innerText = cfg.instName;
+  toast('✅ সেটিংস সংরক্ষিত হয়েছে','success');
+}
+
+function clearAll(){
+  if(cfg.confirmDelete!==false && !confirm('⚠️ সত্যিই সব ডেটা মুছবেন?')) return;
+  if(!confirm('শেষ সুযোগ — এটি ফেরানো যাবে না!')) return;
+  students=[]; courses=[]; payments=[]; certificates=[];
+  ['lc_students','lc_courses','lc_payments','lc_certificates'].forEach(k=>localStorage.removeItem(k));
+  refreshAll(); toast('🗑️ সব ডেটা মুছা হয়েছে','warning');
+}
+
+// ═══════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════
+function exportData(){
+  const d=JSON.stringify({students,courses,payments,certificates,cfg,exportedAt:new Date().toISOString(),version:'3.1'},null,2);
+  const a=document.createElement('a');
+  a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(d);
+  a.download='lc_backup_'+td()+'.txt'; a.click();
+  cfg.lastBackup=new Date().toLocaleString('bn-BD');
+  S('lc_cfg',cfg);
+  document.getElementById('lastBkp').innerText=cfg.lastBackup;
+  toast('📤 ডেটা এক্সপোর্ট হয়েছে','success');
+}
+
+function importFile(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const j=JSON.parse(e.target.result);
+      if(!confirm('ইমপোর্ট করলে বর্তমান ডেটা প্রতিস্থাপিত হবে। নিশ্চিত?')) return;
+      if(j.students)     { students=j.students;         S('lc_students',students); }
+      if(j.courses)      { courses=j.courses;            S('lc_courses',courses); }
+      if(j.payments)     { payments=j.payments;          S('lc_payments',payments); }
+      if(j.certificates) { certificates=j.certificates;  S('lc_certificates',certificates); }
+      if(j.cfg)          { cfg=j.cfg;                    S('lc_cfg',cfg); loadSettings(); }
+      refreshAll(); toast('✅ ডেটা সফলভাবে ইমপোর্ট হয়েছে','success');
+    }catch{ toast('ফাইল পড়তে সমস্যা হয়েছে — বৈধ TXT ফাইল দিন','error'); }
+  };
+  r.readAsText(f); inp.value='';
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function nav(pg){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+pg).classList.add('on');
+  document.getElementById('nb-'+pg).classList.add('on');
+  document.getElementById('udrop').classList.remove('on');
+}
+function om(id){ document.getElementById(id).classList.add('on'); }
+function cm(id){ document.getElementById(id).classList.remove('on'); }
+function toggleUD(){ document.getElementById('udrop').classList.toggle('on'); }
+document.addEventListener('click',e=>{ if(!e.target.closest('#udrop')&&!e.target.closest('#avBtn')) document.getElementById('udrop').classList.remove('on'); });
+
+function openBackupModal(){ cm('udrop'); om('mBkp'); }
+
+function gSrch(){
+  const q=document.getElementById('gSearch').value.trim(); if(!q) return;
+  nav('stu'); document.getElementById('srchStu').value=q; renStu();
+}
+
+// ═══════════════════════════════════════════
+// REFRESH ALL
+// ═══════════════════════════════════════════
+function refreshAll(){
+  loadAll(); renDash(); renStu(); renCrs(); renPay(); renDue(); renCert();
+  updateDrops(); updateBadges(); updateSStats();
+}
+
+function updateBadges(){
+  const dc=students.filter(s=>s.dueAmount>0).length;
+  const de=document.getElementById('nbd'); de.style.display=dc?'inline':'none'; de.innerText=dc;
+  const se=document.getElementById('nbs'); se.style.display=students.length?'inline':'none'; se.innerText=students.length;
+}
+
+function updateSStats(){
+  document.getElementById('ss1').innerText=students.length;
+  document.getElementById('ss2').innerText=courses.length;
+  document.getElementById('ss3').innerText=payments.length;
+  document.getElementById('ss4').innerText=certificates.length;
+  const rev=payments.reduce((s,p)=>s+p.amount,0);
+  document.getElementById('ss5').innerText='৳'+rev.toLocaleString();
+}
+
+// ═══════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════
+function renDash(){
+  document.getElementById('todayStr').innerText=new Date().toLocaleDateString('bn-BD',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  document.getElementById('d1').innerText=students.length;
+  document.getElementById('d2').innerText=courses.length;
+  const rev=payments.reduce((s,p)=>s+p.amount,0);
+  document.getElementById('d3').innerText='৳'+rev.toLocaleString();
+  const ds=students.filter(s=>s.dueAmount>0);
+  const td2=ds.reduce((s,x)=>s+x.dueAmount,0);
+  document.getElementById('d4').innerText='৳'+td2.toLocaleString();
+  document.getElementById('d4s').innerText=ds.length+' জন শিক্ষার্থী';
+
+  const rs=students.slice(-6).reverse();
+  document.getElementById('dRS').innerHTML=rs.length
+    ?rs.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9">
+        <div><div style="font-size:13.5px;font-weight:600">${s.name}</div><div style="font-size:12px;color:var(--muted)">${s.courseName}·${s.enrollDate}</div></div>
+        <span class="badge ${s.status==='সম্পূর্ণ'?'bs':'bw'}">${s.status}</span></div>`).join('')
+    :'<div class="empty"><div class="ei">👨‍🎓</div><p>কোন শিক্ষার্থী নেই</p></div>';
+
+  const rp=payments.slice(-6).reverse();
+  document.getElementById('dRP').innerHTML=rp.length
+    ?rp.map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f1f5f9">
+        <div><div style="font-size:13.5px;font-weight:600">${p.studentName}</div><div style="font-size:12px;color:var(--muted)">${p.date}·${p.method}</div></div>
+        <span style="font-weight:700;color:var(--success);font-family:var(--fe)">৳${p.amount.toLocaleString()}</span></div>`).join('')
+    :'<div class="empty"><div class="ei">💰</div><p>কোন পেমেন্ট নেই</p></div>';
+}
+
+// ═══════════════════════════════════════════
+// STUDENTS
+// ═══════════════════════════════════════════
+function openStu(id=''){
+  updateDrops();
+  if(id){
+    const s=students.find(x=>x.id===id); if(!s) return;
+    document.getElementById('mStuT').innerText='✏️ শিক্ষার্থী সম্পাদনা';
+    document.getElementById('sN').value=s.name; document.getElementById('sF').value=s.father||'';
+    document.getElementById('sPh').value=s.phone; document.getElementById('sPh2').value=s.phone2||'';
+    document.getElementById('sA').value=s.address||'';
+    document.getElementById('sC').value=s.courseId; document.getElementById('sTF').value=s.totalFee;
+    document.getElementById('sPF').value=s.paidFee; document.getElementById('sD').value=s.enrollDate;
+    document.getElementById('sEid').value=id;
+  } else {
+    document.getElementById('mStuT').innerText='➕ নতুন শিক্ষার্থী';
+    ['sN','sF','sPh','sPh2','sA','sTF'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('sPF').value='0'; document.getElementById('sD').value=td();
+    document.getElementById('sEid').value=''; document.getElementById('sC').value='';
+  }
+  om('mStu');
+}
+
+function onCC(){
+  const c=courses.find(x=>x.id===document.getElementById('sC').value);
+  if(c) document.getElementById('sTF').value=c.fee;
+}
+
+function saveStu(){
+  const name=document.getElementById('sN').value.trim();
+  const phone=document.getElementById('sPh').value.trim();
+  const phone2=document.getElementById('sPh2').value.trim();
+  const cid=document.getElementById('sC').value;
+  const enDate=document.getElementById('sD').value;
+  if(!name){ toast('নাম লিখুন','error'); return; }
+  if(!phone){ toast('মোবাইল নম্বর লিখুন','error'); return; }
+  if(!cid){ toast('কোর্স নির্বাচন করুন','error'); return; }
+  if(!enDate){ toast('ভর্তির তারিখ দিন','error'); return; }
+  const crs=courses.find(c=>c.id===cid);
+  const tf=parseFloat(document.getElementById('sTF').value)||0;
+  const pf=parseFloat(document.getElementById('sPF').value)||0;
+  const due=Math.max(0,tf-pf);
+  const eid=document.getElementById('sEid').value;
+  const base={name,father:document.getElementById('sF').value.trim(),phone,phone2,address:document.getElementById('sA').value.trim(),courseId:cid,courseName:crs.name,totalFee:tf,paidFee:pf,dueAmount:due,status:due<=0?'সম্পূর্ণ':'বকেয়া',enrollDate:enDate};
+  if(eid){
+    const i=students.findIndex(s=>s.id===eid); if(i===-1) return;
+    students[i]={...students[i],...base};
+    S('lc_students',students); cm('mStu'); refreshAll(); toast('✅ শিক্ষার্থীর তথ্য আপডেট হয়েছে','success');
+  } else {
+    const s={id:'S'+Date.now(),...base};
+    students.push(s); S('lc_students',students);
+    if(pf>0) savePayRec(s.id,pf,document.getElementById('sFM').value,'ভর্তির সময় পেমেন্ট',enDate);
+    cm('mStu'); refreshAll(); toast('✅ শিক্ষার্থী যোগ হয়েছে','success');
+  }
+}
+
+function renStu(){
+  const q=(document.getElementById('srchStu').value||'').toLowerCase();
+  const sf=document.getElementById('flStuSt').value;
+  const cf=document.getElementById('flStuCr').value;
+  let arr=students.slice().reverse();
+  if(q) arr=arr.filter(s=>s.name.toLowerCase().includes(q)||s.phone.includes(q)||(s.phone2&&s.phone2.includes(q))||(s.father&&s.father.toLowerCase().includes(q))||s.courseName.toLowerCase().includes(q));
+  if(sf) arr=arr.filter(s=>s.status===sf);
+  if(cf) arr=arr.filter(s=>s.courseId===cf);
+  const tb=document.getElementById('stuBody');
+  if(!arr.length){ tb.innerHTML=`<tr><td colspan="12"><div class="empty"><div class="ei">👨‍🎓</div><p>কোন শিক্ষার্থী পাওয়া যায়নি</p></div></td></tr>`; return; }
+  tb.innerHTML=arr.map((s,i)=>{
+    const pct=s.totalFee>0?Math.round((s.paidFee/s.totalFee)*100):100;
+    const pc=pct>=100?'g':pct>=50?'':'r';
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td><strong>${s.name}</strong><small>${s.id}</small></td>
+      <td>${s.phone}${s.phone2?`<small>📞 ${s.phone2}</small>`:''}</td>
+      <td>${s.father||'—'}</td>
+      <td><strong>${s.courseName}</strong></td>
+      <td>৳${s.totalFee.toLocaleString()}</td>
+      <td style="color:var(--success)">৳${s.paidFee.toLocaleString()}</td>
+      <td style="color:${s.dueAmount>0?'var(--danger)':'var(--success)'}"><strong>৳${s.dueAmount.toLocaleString()}</strong></td>
+      <td style="min-width:110px"><div style="display:flex;align-items:center;gap:6px"><div class="pb" style="flex:1"><div class="pf ${pc}" style="width:${pct}%"></div></div><span style="font-size:11px;color:var(--muted)">${pct}%</span></div></td>
+      <td>${s.enrollDate}</td>
+      <td><span class="badge ${s.status==='সম্পূর্ণ'?'bs':'bw'}">${s.status}</span></td>
+      <td><div class="tda">
+        <button class="btn be bsm" onclick="openStu('${s.id}')">✏️ সম্পাদনা</button>
+        ${s.dueAmount>0?`<button class="btn bpay bsm" onclick="qPay('${s.id}')">💵</button>`:''}
+        <button class="btn bdel bsm" onclick="delStu('${s.id}')">🗑️</button>
+      </div></td></tr>`;
+  }).join('');
+}
+
+function delStu(id){
+  if(cfg.confirmDelete!==false&&!confirm('এই শিক্ষার্থী মুছবেন?')) return;
+  students=students.filter(s=>s.id!==id); S('lc_students',students); refreshAll(); toast('🗑️ শিক্ষার্থী মুছা হয়েছে','warning');
+}
+
+
+// ═══════════════════════════════════════════
+// COURSES
+// ═══════════════════════════════════════════
+function openCrs(id=''){
+  if(id){
+    const c=courses.find(x=>x.id===id); if(!c) return;
+    document.getElementById('mCrsT').innerText='✏️ কোর্স সম্পাদনা';
+    document.getElementById('cN').value=c.name; document.getElementById('cCd').value=c.code||'';
+    document.getElementById('cDr').value=c.duration||''; document.getElementById('cFe').value=c.fee;
+    document.getElementById('cDs').value=c.desc||''; document.getElementById('cEid').value=id;
+  } else {
+    document.getElementById('mCrsT').innerText='➕ নতুন কোর্স';
+    ['cN','cCd','cDr','cFe','cDs'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('cEid').value='';
+  }
+  om('mCrs');
+}
+
+function saveCrs(){
+  const nm=document.getElementById('cN').value.trim();
+  const fe=parseFloat(document.getElementById('cFe').value);
+  if(!nm){ toast('কোর্সের নাম লিখুন','error'); return; }
+  if(isNaN(fe)||fe<0){ toast('সঠিক ফি লিখুন','error'); return; }
+  const data={name:nm,code:document.getElementById('cCd').value.trim(),duration:document.getElementById('cDr').value,fee:fe,desc:document.getElementById('cDs').value.trim()};
+  const eid=document.getElementById('cEid').value;
+  if(eid){
+    const i=courses.findIndex(c=>c.id===eid);
+    courses[i]={...courses[i],...data};
+    students.forEach(s=>{ if(s.courseId===eid) s.courseName=nm; });
+    S('lc_students',students); S('lc_courses',courses); cm('mCrs'); refreshAll(); toast('✅ কোর্স আপডেট হয়েছে','success');
+  } else {
+    courses.push({id:'C'+Date.now(),...data}); S('lc_courses',courses); cm('mCrs'); refreshAll(); toast('✅ কোর্স যোগ হয়েছে','success');
+  }
+}
+
+function renCrs(){
+  const q=(document.getElementById('srchCrs').value||'').toLowerCase();
+  let arr=courses.slice().reverse();
+  if(q) arr=arr.filter(c=>c.name.toLowerCase().includes(q)||(c.code&&c.code.toLowerCase().includes(q)));
+  const tb=document.getElementById('crsBody');
+  if(!arr.length){ tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">📚</div><p>কোন কোর্স পাওয়া যায়নি</p></div></td></tr>`; return; }
+  tb.innerHTML=arr.map((c,i)=>{
+    const cnt=students.filter(s=>s.courseId===c.id).length;
+    const inc=payments.filter(p=>p.courseId===c.id).reduce((s,x)=>s+x.amount,0);
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td><strong>${c.name}</strong>${c.desc?`<small>${c.desc}</small>`:''}</td>
+      <td>${c.code||'—'}</td><td>${c.duration?c.duration+' মাস':'—'}</td>
+      <td style="font-weight:600">৳${c.fee.toLocaleString()}</td>
+      <td><span class="badge bi">${cnt} জন</span></td>
+      <td style="color:var(--success);font-weight:600">৳${inc.toLocaleString()}</td>
+      <td><div class="tda">
+        <button class="btn be bsm" onclick="openCrs('${c.id}')">✏️ সম্পাদনা</button>
+        <button class="btn bdel bsm" onclick="delCrs('${c.id}')">🗑️</button>
+      </div></td></tr>`;
+  }).join('');
+}
+
+function delCrs(id){
+  if(students.some(s=>s.courseId===id)){ toast('এই কোর্সে শিক্ষার্থী আছে, মুছা যাবে না!','error'); return; }
+  if(cfg.confirmDelete!==false&&!confirm('কোর্স মুছবেন?')) return;
+  courses=courses.filter(c=>c.id!==id); S('lc_courses',courses); refreshAll(); toast('🗑️ কোর্স মুছা হয়েছে','warning');
+}
+
+// ═══════════════════════════════════════════
+// PAYMENTS
+// ═══════════════════════════════════════════
+function openPay(sid=''){
+  updateDrops();
+  document.getElementById('pAmt').value=''; document.getElementById('pNt').value='';
+  document.getElementById('pDt').value=td(); document.getElementById('pInfo').style.display='none';
+  document.getElementById('pStu').value=sid||'';
+  if(sid) onPS();
+  om('mPay');
+}
+
+function onPS(){
+  const id=document.getElementById('pStu').value;
+  const el=document.getElementById('pInfo');
+  if(!id){ el.style.display='none'; return; }
+  const s=students.find(x=>x.id===id);
+  if(!s){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML=`<strong>${s.name}</strong> — ${s.courseName}<br>মোট: ৳${s.totalFee} | জমা: ৳${s.paidFee} | <strong style="color:var(--danger)">বকেয়া: ৳${s.dueAmount}</strong>`;
+  document.getElementById('pAmt').max=s.dueAmount;
+  document.getElementById('pAmt').placeholder=`সর্বোচ্চ ৳${s.dueAmount}`;
+}
+
+function savePay(){
+  const sid=document.getElementById('pStu').value;
+  const amt=parseFloat(document.getElementById('pAmt').value);
+  const dt=document.getElementById('pDt').value;
+  if(!sid){ toast('শিক্ষার্থী নির্বাচন করুন','error'); return; }
+  if(!amt||amt<=0){ toast('সঠিক পরিমাণ লিখুন','error'); return; }
+  if(!dt){ toast('তারিখ দিন','error'); return; }
+  const s=students.find(x=>x.id===sid);
+  if(cfg.payLimit!==false && amt>s.dueAmount){ toast(`বকেয়ার (৳${s.dueAmount}) চেয়ে বেশি পেমেন্ট নেওয়া যাবে না`,'error'); return; }
+  s.paidFee+=amt; s.dueAmount=Math.max(0,s.dueAmount-amt); s.status=s.dueAmount<=0?'সম্পূর্ণ':'বকেয়া';
+  savePayRec(sid,amt,document.getElementById('pMth').value,document.getElementById('pNt').value,dt);
+  S('lc_students',students); cm('mPay'); refreshAll(); toast('✅ পেমেন্ট সংরক্ষিত হয়েছে','success');
+}
+
+function savePayRec(sid,amt,method,note,dt){
+  const s=students.find(x=>x.id===sid);
+  payments.push({id:'P'+Date.now(),studentId:sid,date:dt,studentName:s.name,courseName:s.courseName,courseId:s.courseId,amount:amt,method,note});
+  S('lc_payments',payments);
+}
+
+function qPay(id){ nav('pay'); setTimeout(()=>openPay(id),60); }
+
+function renPay(){
+  const q=(document.getElementById('srchPay').value||'').toLowerCase();
+  const mf=document.getElementById('flPayMth').value;
+  let arr=payments.slice().reverse();
+  if(q) arr=arr.filter(p=>p.studentName.toLowerCase().includes(q)||p.date.includes(q)||(p.courseName&&p.courseName.toLowerCase().includes(q))||p.method.toLowerCase().includes(q));
+  if(mf) arr=arr.filter(p=>p.method===mf);
+  const tb=document.getElementById('payBody');
+  if(!arr.length){ tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">💰</div><p>কোন পেমেন্ট পাওয়া যায়নি</p></div></td></tr>`; return; }
+  tb.innerHTML=arr.map((p,i)=>`<tr>
+    <td style="color:var(--muted);font-size:12px">${i+1}</td>
+    <td>${p.date}</td><td><strong>${p.studentName}</strong></td>
+    <td>${p.courseName||'—'}</td>
+    <td style="color:var(--success);font-weight:700">৳${p.amount.toLocaleString()}</td>
+    <td><span class="badge bg">${p.method}</span></td>
+    <td style="color:var(--muted)">${p.note||'—'}</td>
+    <td><button class="btn bdel bsm" onclick="delPay('${p.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+
+function delPay(id){
+  if(cfg.confirmDelete!==false&&!confirm('পেমেন্ট রেকর্ড মুছবেন?')) return;
+  payments=payments.filter(p=>p.id!==id); S('lc_payments',payments); refreshAll(); toast('🗑️ পেমেন্ট মুছা হয়েছে','warning');
+}
+
+// ═══════════════════════════════════════════
+// DUE
+// ═══════════════════════════════════════════
+function renDue(){
+  const q=(document.getElementById('srchDue').value||'').toLowerCase();
+  let arr=students.filter(s=>s.dueAmount>0).sort((a,b)=>b.dueAmount-a.dueAmount);
+  if(q) arr=arr.filter(s=>s.name.toLowerCase().includes(q)||s.phone.includes(q)||s.courseName.toLowerCase().includes(q));
+  const tb=document.getElementById('dueBody');
+  if(!arr.length){ tb.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="ei">🎉</div><p>কোন বকেয়া নেই!</p></div></td></tr>`; return; }
+  tb.innerHTML=arr.map((s,i)=>{
+    const pct=s.totalFee>0?Math.round((s.paidFee/s.totalFee)*100):0;
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${i+1}</td>
+      <td><strong>${s.name}</strong></td><td>${s.phone}</td><td>${s.courseName}</td>
+      <td>৳${s.totalFee.toLocaleString()}</td>
+      <td style="color:var(--success)">৳${s.paidFee.toLocaleString()}</td>
+      <td style="color:var(--danger);font-weight:700">৳${s.dueAmount.toLocaleString()}</td>
+      <td style="min-width:110px"><div style="display:flex;align-items:center;gap:6px"><div class="pb" style="flex:1"><div class="pf r" style="width:${pct}%"></div></div><span style="font-size:11px;color:var(--muted)">${pct}%</span></div></td>
+      <td><button class="btn bpay bsm" onclick="qPay('${s.id}')">💵 পেমেন্ট</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════
+// CERTIFICATES
+// ═══════════════════════════════════════════
+function openCert(){
+  updateDrops();
+  ['ctNum','ctGr'].forEach(i=>document.getElementById(i).value='');
+  document.getElementById('ctDt').value=td();
+  document.getElementById('ctStu').value='';
+  if(cfg.autoCert!==false){
+    const n='LC-'+new Date().getFullYear()+'-'+(String(certificates.length+1).padStart(3,'0'));
+    document.getElementById('ctNum').value=n;
+  }
+  om('mCert');
+}
+
+function saveCert(){
+  const sid=document.getElementById('ctStu').value;
+  const num=document.getElementById('ctNum').value.trim();
+  const dt=document.getElementById('ctDt').value;
+  if(!sid){ toast('শিক্ষার্থী নির্বাচন করুন','error'); return; }
+  if(!num){ toast('সার্টিফিকেট নম্বর লিখুন','error'); return; }
+  if(!dt){ toast('তারিখ দিন','error'); return; }
+  const s=students.find(x=>x.id===sid);
+  certificates.push({id:'CT'+Date.now(),studentId:sid,studentName:s.name,courseName:s.courseName,certificateNumber:num,issueDate:dt,grade:document.getElementById('ctGr').value.trim()});
+  S('lc_certificates',certificates); cm('mCert'); refreshAll(); toast('🎓 সার্টিফিকেট তৈরি হয়েছে','success');
+}
+
+function renCert(){
+  const q=(document.getElementById('srchCert').value||'').toLowerCase();
+  let arr=certificates.slice().reverse();
+  if(q) arr=arr.filter(c=>c.studentName.toLowerCase().includes(q)||c.certificateNumber.toLowerCase().includes(q)||c.courseName.toLowerCase().includes(q));
+  const tb=document.getElementById('certBody');
+  if(!arr.length){ tb.innerHTML=`<tr><td colspan="7"><div class="empty"><div class="ei">🎓</div><p>কোন সার্টিফিকেট পাওয়া যায়নি</p></div></td></tr>`; return; }
+  tb.innerHTML=arr.map((c,i)=>`<tr>
+    <td style="color:var(--muted);font-size:12px">${i+1}</td>
+    <td><strong>${c.studentName}</strong></td>
+    <td>${c.courseName}</td>
+    <td><code style="background:#f1f5f9;padding:3px 8px;border-radius:4px;font-size:12px">${c.certificateNumber}</code></td>
+    <td>${c.issueDate}</td>
+    <td>${c.grade?`<span class="badge bs">${c.grade}</span>`:'—'}</td>
+    <td><button class="btn bdel bsm" onclick="delCert('${c.id}')">🗑️</button></td>
+  </tr>`).join('');
+}
+
+function delCert(id){
+  if(cfg.confirmDelete!==false&&!confirm('সার্টিফিকেট মুছবেন?')) return;
+  certificates=certificates.filter(c=>c.id!==id); S('lc_certificates',certificates); refreshAll(); toast('🗑️ সার্টিফিকেট মুছা হয়েছে','warning');
+}
+
+// ═══════════════════════════════════════════
+// DROPDOWNS
+// ═══════════════════════════════════════════
+function updateDrops(){
+  const cf=document.getElementById('flStuCr');
+  if(cf){ const v=cf.value; cf.innerHTML='<option value="">সকল কোর্স</option>'+courses.map(c=>`<option value="${c.id}">${c.name}</option>`).join(''); cf.value=v; }
+  const sc=document.getElementById('sC'); if(sc) sc.innerHTML='<option value="">-- কোর্স নির্বাচন করুন --</option>'+courses.map(c=>`<option value="${c.id}">${c.name} — ৳${c.fee}</option>`).join('');
+  const ps=document.getElementById('pStu'); if(ps) ps.innerHTML='<option value="">-- শিক্ষার্থী নির্বাচন করুন --</option>'+students.map(s=>`<option value="${s.id}">${s.name} (বকেয়া: ৳${s.dueAmount})</option>`).join('');
+  const cs=document.getElementById('ctStu'); if(cs) cs.innerHTML='<option value="">-- শিক্ষার্থী নির্বাচন করুন --</option>'+students.map(s=>`<option value="${s.id}">${s.name} — ${s.courseName}</option>`).join('');
+}
+
+// ═══════════════════════════════════════════
+// CALCULATOR
+// ═══════════════════════════════════════════
+function cUD(){ document.getElementById('cNum').innerText=cDisp; document.getElementById('cExpr').innerText=cExprStr; }
+function cIn(v){
+  if(cNew&&!['+','-','×','÷'].includes(v)){ cDisp=v==='.'?'0.':v; cNew=false; }
+  else {
+    if(['+','-','×','÷'].includes(v)){ cExprStr=cDisp+' '+v+' '; cNew=true; cUD(); return; }
+    if(v==='.'&&cDisp.includes('.')) return;
+    cDisp=(cDisp==='0'&&v!=='.')?v:cDisp+v;
+  }
+  cUD();
+}
+function cFn(fn){
+  if(fn==='AC'){ cDisp='0'; cExprStr=''; cNew=true; }
+  else if(fn==='+/-') cDisp=(parseFloat(cDisp)*-1).toString();
+  else if(fn==='%')   cDisp=(parseFloat(cDisp)/100).toString();
+  cUD();
+}
+function cEq(){
+  if(!cExprStr) return;
+  const pts=cExprStr.trim().split(' ');
+  const a=parseFloat(pts[0]),op=pts[1],b=parseFloat(cDisp);
+  let r;
+  if(op==='+') r=a+b; else if(op==='-') r=a-b; else if(op==='×') r=a*b;
+  else if(op==='÷'){ if(!b){ toast('শূন্য দিয়ে ভাগ করা যাবে না','error'); cExprStr=''; cNew=true; return; } r=a/b; }
+  cHist.unshift({e:`${cExprStr}${b}`,r:parseFloat(r.toFixed(10))}); if(cHist.length>20) cHist.pop();
+  const hl=document.getElementById('cHL');
+  hl.innerHTML=cHist.map(h=>`<div class="chi">${h.e} = <span class="chi-r">${h.r}</span></div>`).join('');
+  cDisp=parseFloat(r.toFixed(10)).toString(); cExprStr=''; cNew=true; cUD();
+}
+function clearCalcHist(){ cHist=[]; document.getElementById('cHL').innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0">ইতিহাস মুছা হয়েছে</p>'; }
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('pg-calc').classList.contains('on')) return;
+  const k=e.key;
+  if('0123456789.'.includes(k)) cIn(k);
+  else if(k==='+') cIn('+'); else if(k==='-') cIn('-');
+  else if(k==='*') cIn('×'); else if(k==='/'){ e.preventDefault(); cIn('÷'); }
+  else if(k==='Enter'||k==='=') cEq();
+  else if(k==='Escape') cFn('AC');
+  else if(k==='Backspace'){ if(cDisp.length>1) cDisp=cDisp.slice(0,-1); else cDisp='0'; cUD(); }
+});
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function toast(msg,type='success'){
+  const w=document.getElementById('tWrap');
+  const el=document.createElement('div');
+  el.className=`toast ${type}`; el.innerHTML=`<span>${msg}</span>`;
+  w.appendChild(el);
+  setTimeout(()=>{ el.style.animation='tout .3s ease forwards'; setTimeout(()=>el.remove(),300); },3200);
+}
+
+// ═══════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════
+window.onload=()=>{
+  loadAll();
+  // Auto re-login from session
+  const sess=J('lc_session');
+  if(sess){
+    currentUser=sess;
+    // Verify user still exists (unless guest)
+    if(sess.username!=='guest'){
+      const users=J('lc_users')||{};
+      if(!users[sess.username]){ localStorage.removeItem('lc_session'); return; }
+    }
+    launch();
+  }
+};
+</script>
+</body>
+</html>
